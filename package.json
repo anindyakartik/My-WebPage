@@ -3,12 +3,16 @@
   "version": "2.0.0",
   "description": "Anindya Kartik's Portfolio with CMS, Contact & Anonymous Letter Features",
   "main": "server.js",
-  "scripts": {
-    "start": "node cms-server.js",
-    "dev": "nodemon cms-server.js",
-    "test": "node test-backend.js",
-    "test-contact": "node test-server.js"
-  },
+   
+     "scripts": {
+       "start": "node cms-server.js",
+       "build": "echo 'No build step required'"
+     },
+     "engines": {
+  "node": "24.x"
+}
+
+   ,
   "keywords": ["portfolio", "cms", "contact-form", "anonymous-letter", "mongodb"],
   "author": "Anindya Kartik",
   "license": "MIT",
