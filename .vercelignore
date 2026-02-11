@@ -1,0 +1,18 @@
+# Ignore backend files for Vercel deployment
+node_modules/
+cms-server.js
+test-backend.js
+test-server.js
+server.js
+models/
+.env
+.env.example
+package-lock.json
+
+# Ignore documentation
+*.md
+!README.md
+
+# Ignore deployment configs
+render.yaml
+deploy.sh

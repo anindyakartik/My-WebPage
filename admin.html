@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel — Anindya Kartik</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,400;0,9..144,700;1,9..144,200;1,9..144,400&family=Archivo:wght@300;400;600;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="admin-style.css">
+</head>
+<body class="admin-page">
+  
+  <div class="atmosphere">
+    <canvas id="particle-canvas"></canvas>
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+    <div class="grain-overlay"></div>
+  </div>
+
+  <!-- Login Screen -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-container">
+      <div class="login-header">
+        <div class="lock-icon">🔐</div>
+        <h1>Admin Access</h1>
+        <p>Enter your password to manage content</p>
+      </div>
+      <form id="loginForm" class="login-form">
+        <div class="form-group">
+          <input 
+            type="password" 
+            id="adminPassword" 
+            placeholder="Enter admin password"
+            required
+            autocomplete="current-password"
+          >
+        </div>
+        <button type="submit" class="btn-primary">
+          <span>Unlock Panel</span>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 12v4M7 8V6a3 3 0 016 0v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <rect x="4" y="8" width="12" height="8" rx="2" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div id="adminDashboard" class="admin-dashboard" style="display: none;">
+    
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="admin-brand">
+        <span class="brand-icon">◆</span>
+        <span class="brand-text">Admin Panel</span>
+      </div>
+      <div class="admin-actions">
+        <button class="btn-icon" id="refreshBtn" title="Refresh">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M4 10a6 6 0 0112 0M16 10a6 6 0 01-12 0M4 10l-2-2m2 2l2-2m10 2l2 2m-2-2l-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <button class="btn-secondary" id="logoutBtn">
+          <span>Logout</span>
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M13 3h3a2 2 0 012 2v10a2 2 0 01-2 2h-3M8 16l-5-5m0 0l5-5m-5 5h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="admin-nav">
+      <button class="nav-tab active" data-tab="projects">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="2"/>
+          <rect x="11" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="2"/>
+          <rect x="3" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="2"/>
+          <rect x="11" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>Projects</span>
+      </button>
+      <button class="nav-tab" data-tab="poems">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h6a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h0a2 2 0 002-2M9 5a2 2 0 012-2h0a2 2 0 012 2" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>Poems</span>
+      </button>
+      <button class="nav-tab" data-tab="books">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M4 4v12a2 2 0 002 2h8a2 2 0 002-2V4M4 4h12M4 4a2 2 0 012-2h8a2 2 0 012 2M8 8h4M8 12h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        <span>Books</span>
+      </button>
+      <button class="nav-tab" data-tab="blog">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>Blog</span>
+      </button>
+    </nav>
+
+    <!-- Content Area -->
+    <main class="admin-content">
+      
+      <!-- Projects Tab -->
+      <div id="projectsTab" class="content-tab active">
+        <div class="tab-header">
+          <h2>Manage Projects</h2>
+          <button class="btn-primary" id="addProjectBtn">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>Add Project</span>
+          </button>
+        </div>
+        <div id="projectsList" class="content-list"></div>
+      </div>
+
+      <!-- Poems Tab -->
+      <div id="poemsTab" class="content-tab">
+        <div class="tab-header">
+          <h2>Manage Poems</h2>
+          <button class="btn-primary" id="addPoemBtn">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>Add Poem</span>
+          </button>
+        </div>
+        <div id="poemsList" class="content-list"></div>
+      </div>
+
+      <!-- Books Tab -->
+      <div id="booksTab" class="content-tab">
+        <div class="tab-header">
+          <h2>Manage Book Reviews</h2>
+          <button class="btn-primary" id="addBookBtn">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>Add Book</span>
+          </button>
+        </div>
+        <div id="booksList" class="content-list"></div>
+      </div>
+
+      <!-- Blog Tab -->
+      <div id="blogTab" class="content-tab">
+        <div class="tab-header">
+          <h2>Manage Blog Posts</h2>
+          <button class="btn-primary" id="addBlogBtn">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>Add Post</span>
+          </button>
+        </div>
+        <div id="blogList" class="content-list"></div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Modal for Adding/Editing Content -->
+  <div id="contentModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Add Content</h3>
+        <button class="modal-close" id="closeModal">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+      <form id="contentForm" class="modal-form">
+        <div id="formFields"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+          <button type="submit" class="btn-primary">
+            <span id="submitBtnText">Save</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+  <script src="admin-script.js"></script>
+</body>
+</html>

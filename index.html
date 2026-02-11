@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anindya Kartik ◆ Where Code Meets Poetry</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,400;0,9..144,700;1,9..144,200;1,9..144,400&family=Archivo:wght@300;400;600;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  
+  <!-- Atmospheric Background Layers -->
+  <div class="atmosphere">
+    <canvas id="particle-canvas"></canvas>
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+    <div class="gradient-orb orb-3"></div>
+    <div class="gradient-orb orb-4"></div>
+    <div class="grain-overlay"></div>
+    <div class="vignette" aria-hidden="true"></div>
+  </div>
+
+  <!-- Floating Navigation -->
+  <nav class="nav-float">
+    <div class="nav-brand">
+      <div class="brand-icon"></div>
+      <span class="brand-text">AK</span>
+    </div>
+    
+    <div class="nav-menu">
+      <a href="index.html" class="nav-item" data-text="Home">Home</a>
+      <a href="work.html" class="nav-item" data-text="Work">Work</a>
+      <a href="musings.html" class="nav-item" data-text="Musings">Musings</a>
+      <a href="shelf.html" class="nav-item" data-text="Shelf">Shelf</a>
+      <a href="now.html" class="nav-item" data-text="Now">Now</a>
+      <a href="contact.html" class="nav-item" data-text="Contact">Contact</a>
+    </div>
+
+    <button class="sound-toggle" aria-label="Toggle ambient sound">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M8 6v8l-4-2H2V8h2l4-2z" stroke="currentColor" stroke-width="1.5"/>
+        <path class="sound-wave" d="M12 8c1 1 1 3 0 4M14 6c2 2 2 6 0 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </nav>
+
+  <main>
+    
+    <!-- HERO: Dramatic Entrance -->
+    <section id="top" class="hero-epic">
+      <div class="hero-time">
+        <span class="time-label">Local Time</span>
+        <span class="time-display">—</span>
+      </div>
+
+      <div class="hero-content">
+        <div class="hero-status">
+          <div class="status-dot"></div>
+          <span>Available for new projects</span>
+        </div>
+
+        <h1 class="hero-title">
+          <span class="title-line">
+            <span class="word" data-word="Building">Building</span>
+            <span class="word" data-word="systems">systems</span>
+          </span>
+          <span class="title-line">
+            <span class="word" data-word="that">that</span>
+            <span class="word accent" data-word="feel">feel</span>
+            <span class="word" data-word="human,">human,</span>
+          </span>
+          <span class="title-line">
+            <span class="word" data-word="writing">writing</span>
+            <span class="word" data-word="poetry">poetry</span>
+          </span>
+          <span class="title-line">
+            <span class="word" data-word="that">that</span>
+            <span class="word accent accent-end" data-word="compiles.">compiles.<span class="cursor-blink" aria-hidden="true"></span></span>
+          </span>
+        </h1>
+
+        <div class="hero-intro">
+          <p class="intro-text">
+            Full-stack developer, poet, and digital gardener based in India.
+            I build with <span class="highlight">Next.js</span>, <span class="highlight">Rust</span>, and <span class="highlight">PostgreSQL</span>
+            — then document the journey in verse.
+          </p>
+        </div>
+
+        <div class="hero-cta">
+          <a href="work.html" class="cta-primary">
+            <span class="cta-text">View Selected Work</span>
+            <span class="cta-icon">→</span>
+          </a>
+          <a href="contact.html" class="cta-secondary">
+            <span>Start a conversation</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-scroll-prompt">
+        <div class="scroll-wheel"></div>
+        <span class="scroll-text">Scroll to explore</span>
+      </div>
+    </section>
+
+    <!-- MUSINGS: Asymmetric Grid -->
+    <section id="musings" class="poetry-section">
+      <div class="section-marker">
+        <span class="marker-line"></span>
+        <span class="marker-text">01 — Selected Verses</span>
+      </div>
+
+      <div class="poetry-grid">
+        <!-- Large Featured Poem -->
+        <article class="poem-card featured" data-reveal>
+          <div class="poem-number">001</div>
+          <div class="poem-meta">
+            <time>Oct 02, 2024</time>
+            <span class="poem-tag">Existential</span>
+          </div>
+          <h3 class="poem-title">Entropy & The Machine</h3>
+          <div class="poem-excerpt">
+            <p>
+              Code rots like fruit left in the sun—<br>
+              each function call a little less elegant,<br>
+              each variable name a whisper of intention<br>
+              now fading into legacy.
+            </p>
+            <p>
+              We build monuments to impermanence,<br>
+              cathedrals of logic that outlive their makers<br>
+              but not their purpose.
+            </p>
+          </div>
+          <a href="musings.html" class="poem-link">
+            <span>Read full poem</span>
+            <svg width="20" height="20" viewBox="0 0 20 20">
+              <path d="M7 4l6 6-6 6" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
+          </a>
+        </article>
+
+        <!-- Smaller Poems -->
+        <article class="poem-card" data-reveal>
+          <div class="poem-number">002</div>
+          <div class="poem-meta">
+            <time>Sep 14, 2024</time>
+            <span class="poem-tag">Morning</span>
+          </div>
+          <h3 class="poem-title">Blue Light Morning</h3>
+          <p class="poem-preview">
+            On waking before the sun, when the world is still compiling
+            and dreams linger in terminal windows...
+          </p>
+          <a href="musings.html" class="poem-link-small">Read →</a>
+        </article>
+
+        <article class="poem-card" data-reveal>
+          <div class="poem-number">003</div>
+          <div class="poem-meta">
+            <time>Aug 28, 2024</time>
+            <span class="poem-tag">Essay</span>
+          </div>
+          <h3 class="poem-title">Digital Gardens</h3>
+          <p class="poem-preview">
+            Why I chose to build a garden instead of a blog—
+            on tending to ideas and letting them grow wild.
+          </p>
+          <a href="musings.html" class="poem-link-small">Read →</a>
+        </article>
+
+        <!-- Quote Block -->
+        <div class="quote-block" data-reveal>
+          <blockquote>
+            "The best code is poetry;<br>
+            the best poetry is compiled<br>
+            from lived experience."
+          </blockquote>
+          <cite>— Personal Manifesto</cite>
+        </div>
+      </div>
+
+      <a href="musings.html" class="view-all-link">
+        <span>Archive of all writings</span>
+        <span class="link-arrow">→</span>
+      </a>
+    </section>
+
+    <!-- WORK: Theatrical Showcase -->
+    <section id="work" class="work-section">
+      <div class="section-marker">
+        <span class="marker-line"></span>
+        <span class="marker-text">02 — Engineering Projects</span>
+      </div>
+
+      <div class="work-intro" data-reveal>
+        <h2 class="section-title">Selected Work</h2>
+        <p class="section-subtitle">
+          Systems that scale, experiences that delight, code that I'm proud to put my name on.
+        </p>
+      </div>
+
+      <!-- Project Showcase -->
+      <div class="projects-showcase">
+        
+        <!-- Project 1: Hero Project -->
+        <article class="project-hero" data-reveal>
+          <div class="project-visual">
+            <div class="project-mockup">
+              <div class="mockup-window">
+                <div class="window-controls">
+                  <span></span><span></span><span></span>
+                </div>
+                <div class="window-content">
+                  <pre><code>$ taskcli list --today
+
+<span style="color: #22c55e">●</span> Write homepage copy
+<span style="color: #eab308">●</span> Review PR #342
+<span style="color: #6366f1">○</span> Deploy to production
+
+3 tasks · 2 completed · 1 in progress</code></pre>
+                </div>
+              </div>
+            </div>
+            <div class="project-glow"></div>
+          </div>
+
+          <div class="project-info">
+            <div class="project-meta">
+              <span class="project-year">2024</span>
+              <span class="project-status">Active Development</span>
+            </div>
+            <h3 class="project-title">TaskCLI</h3>
+            <p class="project-description">
+              A blazingly fast command-line task manager built in Rust. For developers
+              who live in the terminal and refuse to context-switch to manage their day.
+              Features natural language parsing, time tracking, and beautiful TUI interfaces.
+            </p>
+            
+            <div class="project-stats">
+              <div class="stat">
+                <span class="stat-value">8ms</span>
+                <span class="stat-label">Avg response time</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">2.4k</span>
+                <span class="stat-label">GitHub stars</span>
+              </div>
+              <div class="stat">
+                <span class="stat-value">12k+</span>
+                <span class="stat-label">Monthly users</span>
+              </div>
+            </div>
+
+            <div class="project-tech">
+              <span class="tech-pill">Rust</span>
+              <span class="tech-pill">SQLite</span>
+              <span class="tech-pill">Tokio</span>
+              <span class="tech-pill">Crossterm</span>
+            </div>
+
+            <div class="project-links">
+              <a href="work.html" class="project-btn primary">
+                <svg width="16" height="16" viewBox="0 0 16 16">
+                  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" fill="currentColor"/>
+                </svg>
+                <span>View on GitHub</span>
+              </a>
+              <a href="work.html" class="project-btn secondary">
+                <span>Case Study</span>
+                <svg width="16" height="16" viewBox="0 0 16 16">
+                  <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Project Grid -->
+        <div class="project-grid">
+          <article class="project-card" data-reveal>
+            <div class="card-header">
+              <h4 class="card-title">WanderLust API</h4>
+              <a href="work.html" class="card-link">
+                <svg width="18" height="18" viewBox="0 0 18 18">
+                  <path d="M13 2h3v3M16 2L8 10M6 2H2v14h14v-4" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                </svg>
+              </a>
+            </div>
+            <p class="card-description">
+              High-performance travel API handling 1000+ req/s. Node.js, Redis, Docker.
+            </p>
+            <div class="card-footer">
+              <span class="card-year">2024</span>
+              <span class="card-tag">Production</span>
+            </div>
+          </article>
+
+          <article class="project-card" data-reveal>
+            <div class="card-header">
+              <h4 class="card-title">CodeSnap</h4>
+              <a href="work.html" class="card-link">
+                <svg width="18" height="18" viewBox="0 0 18 18">
+                  <path d="M13 2h3v3M16 2L8 10M6 2H2v14h14v-4" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                </svg>
+              </a>
+            </div>
+            <p class="card-description">
+              Beautiful code screenshot generator. React, Canvas API, 10k monthly users.
+            </p>
+            <div class="card-footer">
+              <span class="card-year">2023</span>
+              <span class="card-tag">Open Source</span>
+            </div>
+          </article>
+
+          <article class="project-card" data-reveal>
+            <div class="card-header">
+              <h4 class="card-title">Neural Canvas</h4>
+              <a href="work.html" class="card-link">
+                <svg width="18" height="18" viewBox="0 0 18 18">
+                  <path d="M13 2h3v3M16 2L8 10M6 2H2v14h14v-4" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                </svg>
+              </a>
+            </div>
+            <p class="card-description">
+              AI-powered design tool. Fine-tuned Stable Diffusion, FastAPI backend.
+            </p>
+            <div class="card-footer">
+              <span class="card-year">2024</span>
+              <span class="card-tag">Experimental</span>
+            </div>
+          </article>
+
+          <article class="project-card" data-reveal>
+            <div class="card-header">
+              <h4 class="card-title">Memex</h4>
+              <a href="work.html" class="card-link">
+                <svg width="18" height="18" viewBox="0 0 18 18">
+                  <path d="M13 2h3v3M16 2L8 10M6 2H2v14h14v-4" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                </svg>
+              </a>
+            </div>
+            <p class="card-description">
+              Personal knowledge graph. Obsidian integration, GraphQL, Neo4j.
+            </p>
+            <div class="card-footer">
+              <span class="card-year">2024</span>
+              <span class="card-tag">Personal</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOOKSHELF: Physical Metaphor -->
+    <section id="shelf" class="shelf-section">
+      <div class="section-marker">
+        <span class="marker-line"></span>
+        <span class="marker-text">03 — The Anti-Library</span>
+      </div>
+
+      <div class="shelf-intro" data-reveal>
+        <h2 class="section-title">Books That Built Me</h2>
+        <p class="section-subtitle">
+          "We don't read and write poetry because it's cute. We read and write poetry
+          because we are members of the human race."
+        </p>
+      </div>
+
+      <div class="bookshelf" data-reveal>
+        <div class="shelf-row">
+          <div class="book" style="--book-color: #dc2626; --book-width: 48px; --book-tilt: -2deg;">
+            <div class="book-spine">
+              <span class="spine-text">The Pragmatic Programmer</span>
+              <div class="book-shine"></div>
+            </div>
+            <div class="book-tooltip">
+              <h4>The Pragmatic Programmer</h4>
+              <p>Hunt & Thomas</p>
+              <div class="rating">★★★★★</div>
+              <span class="note">"Changed how I think about code"</span>
+            </div>
+          </div>
+
+          <div class="book" style="--book-color: #2563eb; --book-width: 42px; --book-tilt: 1deg;">
+            <div class="book-spine">
+              <span class="spine-text">Dune</span>
+              <div class="book-shine"></div>
+            </div>
+            <div class="book-tooltip">
+              <h4>Dune</h4>
+              <p>Frank Herbert</p>
+              <div class="rating">★★★★☆</div>
+              <span class="note">"Desert power, political intrigue"</span>
+            </div>
+          </div>
+
+          <div class="book reading" style="--book-color: #16a34a; --book-width: 44px; --book-tilt: -1deg;">
+            <div class="book-spine">
+              <span class="spine-text">Atomic Habits</span>
+              <div class="book-shine"></div>
+              <div class="reading-marker"></div>
+            </div>
+            <div class="book-tooltip">
+              <h4>Atomic Habits</h4>
+              <p>James Clear</p>
+              <div class="reading-badge">Currently Reading</div>
+              <span class="note">"Small changes, remarkable results"</span>
+            </div>
+          </div>
+
+          <div class="book" style="--book-color: #ea580c; --book-width: 46px; --book-tilt: 2deg;">
+            <div class="book-spine">
+              <span class="spine-text">Kafka on the Shore</span>
+              <div class="book-shine"></div>
+            </div>
+            <div class="book-tooltip">
+              <h4>Kafka on the Shore</h4>
+              <p>Haruki Murakami</p>
+              <div class="rating">★★★★★</div>
+              <span class="note">"Surreal, haunting, perfect"</span>
+            </div>
+          </div>
+
+          <div class="book" style="--book-color: #7c3aed; --book-width: 50px; --book-tilt: -1deg;">
+            <div class="book-spine">
+              <span class="spine-text">Design Patterns</span>
+              <div class="book-shine"></div>
+            </div>
+            <div class="book-tooltip">
+              <h4>Design Patterns</h4>
+              <p>Gang of Four</p>
+              <div class="rating">★★★★☆</div>
+              <span class="note">"Essential reference"</span>
+            </div>
+          </div>
+
+          <div class="book" style="--book-color: #0891b2; --book-width: 38px; --book-tilt: 3deg;">
+            <div class="book-spine">
+              <span class="spine-text">Bird by Bird</span>
+              <div class="book-shine"></div>
+            </div>
+            <div class="book-tooltip">
+              <h4>Bird by Bird</h4>
+              <p>Anne Lamott</p>
+              <div class="rating">★★★★★</div>
+              <span class="note">"On writing and life"</span>
+            </div>
+          </div>
+
+          <div class="book" style="--book-color: #ca8a04; --book-width: 40px; --book-tilt: -2deg;">
+            <div class="book-spine">
+              <span class="spine-text">The Art of Possibility</span>
+              <div class="book-shine"></div>
+            </div>
+            <div class="book-tooltip">
+              <h4>The Art of Possibility</h4>
+              <p>Rosamund Zander</p>
+              <div class="rating">★★★★☆</div>
+              <span class="note">"Transformative thinking"</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="shelf-stats" data-reveal>
+        <div class="shelf-stat">
+          <span class="stat-num">47</span>
+          <span class="stat-label">Books Read This Year</span>
+        </div>
+        <div class="shelf-stat">
+          <span class="stat-num">23</span>
+          <span class="stat-label">In Queue</span>
+        </div>
+        <div class="shelf-stat">
+          <span class="stat-num">∞</span>
+          <span class="stat-label">To Read</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- NOW: Living Document -->
+    <section id="now" class="now-section">
+      <div class="section-marker">
+        <span class="marker-line"></span>
+        <span class="marker-text">04 — Present Moment</span>
+      </div>
+
+      <div class="now-container" data-reveal>
+        <div class="now-header">
+          <h2 class="now-title">What I'm doing now</h2>
+          <div class="now-meta">
+            <div class="pulse-dot"></div>
+            <span class="now-updated">Last updated: Feb 09, 2026</span>
+          </div>
+        </div>
+
+        <div class="now-grid">
+          <div class="now-card">
+            <div class="card-icon">📚</div>
+            <h3>Learning</h3>
+            <p>
+              Deep-diving into <strong>Next.js 14</strong> App Router architecture.
+              Exploring React Server Components, streaming SSR, and the future of
+              full-stack development. Also learning <strong>Three.js</strong> to add
+              dimension to web experiences.
+            </p>
+          </div>
+
+          <div class="now-card">
+            <div class="card-icon">✍️</div>
+            <h3>Writing</h3>
+            <p>
+              Working on a collection of essays about the <em>aesthetics of code</em>
+              — why some solutions feel elegant and others don't. Also maintaining
+              a daily poetry practice, capturing moments in verse.
+            </p>
+          </div>
+
+          <div class="now-card">
+            <div class="card-icon">⚡</div>
+            <h3>Building</h3>
+            <p>
+              This website (very meta!), TaskCLI v2.0 with cloud sync, and a
+              <strong>personal knowledge graph</strong> that connects books, notes,
+              and projects. Experimenting with local-first software.
+            </p>
+          </div>
+
+          <div class="now-card">
+            <div class="card-icon">🎵</div>
+            <h3>Listening</h3>
+            <p>
+              On repeat: <em>In Rainbows</em> by Radiohead, <em>Blue</em> by Joni Mitchell,
+              and lo-fi hip-hop for deep work sessions. Rediscovering jazz through
+              Bill Evans and Chet Baker.
+            </p>
+          </div>
+
+          <div class="now-card">
+            <div class="card-icon">🌱</div>
+            <h3>Growing</h3>
+            <p>
+              Learning to slow down and work with intention. Practicing digital
+              minimalism. Tending to this garden instead of chasing metrics.
+              Reading before bed instead of scrolling.
+            </p>
+          </div>
+
+          <div class="now-card">
+            <div class="card-icon">🤝</div>
+            <h3>Collaborating</h3>
+            <p>
+              Open to interesting projects at the intersection of <strong>poetry and
+              technology</strong>. Interested in tools for thought, creative coding,
+              and anything that makes the web more humane.
+            </p>
+          </div>
+        </div>
+
+        <div class="now-footer">
+          <p class="now-note">
+            This is a <a href="https://nownownow.com/about" target="_blank">now page</a>,
+            inspired by Derek Sivers. It's a living document of my current focus.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT: Final Call -->
+    <section id="contact" class="contact-section">
+      <div class="contact-container" data-reveal>
+        <div class="contact-content">
+          <h2 class="contact-title">Let's create something memorable together</h2>
+          <p class="contact-subtitle">
+            I'm always interested in new collaborations, interesting problems,
+            or just good conversation about code, poetry, and everything in between.
+          </p>
+
+          <div class="contact-methods">
+            <a href="mailto:hello@anindya.com" class="contact-btn email">
+              <div class="btn-icon">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/>
+                  <path d="M3 7l9 6 9-6" stroke="currentColor" stroke-width="2"/>
+                </svg>
+              </div>
+              <div class="btn-text">
+                <span class="btn-label">Email</span>
+                <span class="btn-value">hello@anindya.com</span>
+              </div>
+            </a>
+
+            <div class="contact-social">
+              <a href="#" class="social-link" aria-label="GitHub">
+                <svg width="24" height="24" viewBox="0 0 24 24">
+                  <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.762-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" fill="currentColor"/>
+                </svg>
+              </a>
+              <a href="#" class="social-link" aria-label="Twitter">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" fill="currentColor"/>
+                </svg>
+              </a>
+              <a href="#" class="social-link" aria-label="LinkedIn">
+                <svg width="24" height="24" viewBox="0 0 24 24">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" fill="currentColor"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="brand-mark">◆</div>
+          <span class="brand-name">Anindya Kartik</span>
+        </div>
+
+        <nav class="footer-nav">
+          <a href="index.html">Home</a>
+          <a href="work.html">Work</a>
+          <a href="musings.html">Musings</a>
+          <a href="shelf.html">Shelf</a>
+          <a href="now.html">Now</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="footer-info">
+          <p class="copyright">© 2026 Anindya Kartik</p>
+          <p class="colophon">
+            Designed & built by hand · Set in Fraunces, Archivo & Courier Prime
+          </p>
+        </div>
+
+        <div class="footer-meta">
+          <p class="philosophy">Built with intention, not templates</p>
+          <a href="#top" class="back-to-top">
+            <span>Back to top</span>
+            <svg width="16" height="16" viewBox="0 0 16 16">
+              <path d="M8 12V4M4 8l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="dynamic-content.js"></script>
+</body>
+</html>

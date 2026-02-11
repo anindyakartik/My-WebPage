@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Work — Anindya Kartik</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,200;0,9..144,400;0,9..144,700;1,9..144,200;1,9..144,400&family=Archivo:wght@300;400;600;900&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  
+  <div class="atmosphere">
+    <canvas id="particle-canvas"></canvas>
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+    <div class="gradient-orb orb-3"></div>
+    <div class="grain-overlay"></div>
+    <div class="vignette"></div>
+  </div>
+
+  <nav class="nav-float">
+    <a href="index.html" class="nav-brand">
+      <div class="brand-icon"></div>
+      <span class="brand-text">AK</span>
+    </a>
+    
+    <div class="nav-menu">
+      <a href="index.html" class="nav-item" data-text="Home">Home</a>
+      <a href="work.html" class="nav-item nav-item-current" data-text="Work">Work</a>
+      <a href="musings.html" class="nav-item" data-text="Musings">Musings</a>
+      <a href="shelf.html" class="nav-item" data-text="Shelf">Shelf</a>
+      <a href="now.html" class="nav-item" data-text="Now">Now</a>
+      <a href="contact.html" class="nav-item" data-text="Contact">Contact</a>
+    </div>
+
+    <button class="sound-toggle" aria-label="Toggle ambient sound">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M8 6v8l-4-2H2V8h2l4-2z" stroke="currentColor" stroke-width="1.5"/>
+        <path class="sound-wave" d="M12 8c1 1 1 3 0 4M14 6c2 2 2 6 0 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </nav>
+
+  <main>
+    <section class="page-hero">
+      <div class="hero-badge" data-reveal>
+        <span class="badge-icon">💼</span>
+        <span>Selected Work</span>
+      </div>
+      <h1 class="page-title" data-reveal>
+        Building <span class="accent">experiences</span><br>
+        that matter
+      </h1>
+      <p class="page-subtitle" data-reveal>
+        A curated collection of projects I've built, shipped, and learned from.
+      </p>
+      
+      <div class="filter-tabs" data-reveal>
+        <button class="filter-tab active" data-filter="all">All Projects</button>
+        <button class="filter-tab" data-filter="web">Web</button>
+        <button class="filter-tab" data-filter="mobile">Mobile</button>
+        <button class="filter-tab" data-filter="design">Design</button>
+      </div>
+    </section>
+
+    <section class="work-section">
+      <div id="projectsGrid" class="projects-masonry">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <p>Loading projects...</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <div class="brand-mark">◆</div>
+          <span class="brand-name">Anindya Kartik</span>
+        </div>
+        <nav class="footer-nav">
+          <a href="index.html">Home</a>
+          <a href="work.html">Work</a>
+          <a href="musings.html">Musings</a>
+          <a href="shelf.html">Shelf</a>
+          <a href="now.html">Now</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-info">
+          <p class="copyright">© 2026 Anindya Kartik</p>
+          <p class="colophon">Designed & built by hand</p>
+        </div>
+        <div class="footer-meta">
+          <p class="philosophy">Built with intention, not templates</p>
+          <a href="#top" class="back-to-top">
+            <span>Back to top</span>
+            <svg width="16" height="16" viewBox="0 0 16 16">
+              <path d="M8 12V4M4 8l4-4 4 4" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="pages/work.js"></script>
+</body>
+</html>
