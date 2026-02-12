@@ -1,12 +1,10 @@
 services:
   - type: web
     name: anindya-portfolio-api
-    env: node
-    region: oregon
+    runtime: node
     plan: free
     buildCommand: npm install
     startCommand: node cms-server.js
-    healthCheckPath: /api/projects
     envVars:
       - key: NODE_ENV
         value: production
