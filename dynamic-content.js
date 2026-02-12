@@ -6,7 +6,7 @@
 (function() {
   'use strict';
   
-  const API_BASE = '/api';
+  const API_BASE = 'https://my-personal-website-tyhs.onrender.com/api';
   
   // ================================================== //
   // LOAD ALL CONTENT ON PAGE LOAD                     //

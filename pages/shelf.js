@@ -2,7 +2,7 @@
    SHELF PAGE - Dynamic Book Loading
    ============================================================ */
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'https://my-personal-website-tyhs.onrender.com/api';
 let allBooks = [];
 let currentFilter = 'all';
 
