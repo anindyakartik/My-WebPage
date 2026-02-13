@@ -12,6 +12,7 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
+const nodemailer = require('nodemailer');
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
@@ -651,8 +652,6 @@ app.delete('/api/admin/blog/:id', authMiddleware, async (req, res) => {
 // ================================================== //
 
 // Email transporter setup
-const nodemailer = require('nodemailer');
-
 const createTransporter = () => {
   return nodemailer.createTransporter({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
