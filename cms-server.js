@@ -168,6 +168,12 @@ const apiLimiter = rateLimit({
   message: { success: false, message: 'Too many requests, please try again later.' }
 });
 
+const contactLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { success: false, message: 'Too many contact requests, please try again later.' }
+});
+
 // ================================================== //
 // AUTHENTICATION ROUTES                              //
 // ================================================== //
