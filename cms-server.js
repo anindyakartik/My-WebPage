@@ -641,6 +641,132 @@ app.delete('/api/admin/blog/:id', authMiddleware, async (req, res) => {
 // (Continuing in next message due to length)
 
 // ================================================== //
+// CONTACT FORM & ANONYMOUS LETTER ROUTES             //
+// ================================================== //
+
+// Email transporter setup
+const nodemailer = require('nodemailer');
+
+const createTransporter = () => {
+  return nodemailer.createTransporter({
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: process.env.SMTP_PORT || 587,
+    secure: false,
+    auth: {
+      user: process.env.SMTP_USER || process.env.EMAIL_USER,
+      pass: process.env.SMTP_PASS || process.env.EMAIL_PASS,
+    },
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
+};
+
+// Contact form submission
+app.post('/api/contact', contactLimiter, async (req, res) => {
+  try {
+    const { name, email, message } = req.body;
+    
+    if (!name || !email || !message) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'All fields are required' 
+      });
+    }
+    
+    const transporter = createTransporter();
+    
+    // Email to you
+    await transporter.sendMail({
+      from: process.env.SMTP_USER || process.env.EMAIL_USER,
+      to: process.env.RECIPIENT_EMAIL || process.env.ADMIN_EMAIL,
+      subject: `New Contact Form Message from ${name}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #ef4444;">New Contact Form Submission</h2>
+          <div style="background: #f9fafb; padding: 20px; border-radius: 8px;">
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Message:</strong></p>
+            <p style="background: white; padding: 15px; border-left: 4px solid #ef4444;">${message}</p>
+          </div>
+        </div>
+      `
+    });
+    
+    // Auto-reply to sender
+    await transporter.sendMail({
+      from: process.env.SMTP_USER || process.env.EMAIL_USER,
+      to: email,
+      subject: 'Thanks for reaching out!',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #ef4444;">Thanks for your message!</h2>
+          <p>Hi ${name},</p>
+          <p>I've received your message and will get back to you soon.</p>
+          <p style="color: #6b7280; font-size: 14px;">This is an automated response.</p>
+        </div>
+      `
+    });
+    
+    res.json({ 
+      success: true, 
+      message: 'Message sent successfully!' 
+    });
+    
+  } catch (error) {
+    console.error('Contact form error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to send message. Please try again.' 
+    });
+  }
+});
+
+// Anonymous letter submission
+app.post('/api/anonymous-letter', contactLimiter, async (req, res) => {
+  try {
+    const { message, expectReply, replyEmail } = req.body;
+    
+    if (!message) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Message is required' 
+      });
+    }
+    
+    const transporter = createTransporter();
+    
+    await transporter.sendMail({
+      from: process.env.SMTP_USER || process.env.EMAIL_USER,
+      to: process.env.RECIPIENT_EMAIL || process.env.ADMIN_EMAIL,
+      subject: '📨 New Anonymous Letter',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #ef4444;">📨 New Anonymous Letter</h2>
+          <div style="background: #f9fafb; padding: 20px; border-radius: 8px;">
+            <p style="background: white; padding: 15px; border-left: 4px solid #ef4444;">${message}</p>
+            ${expectReply && replyEmail ? `<p><strong>Reply to:</strong> ${replyEmail}</p>` : '<p><em>No reply requested</em></p>'}
+          </div>
+        </div>
+      `
+    });
+    
+    res.json({ 
+      success: true, 
+      message: 'Anonymous letter sent successfully!' 
+    });
+    
+  } catch (error) {
+    console.error('Anonymous letter error:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Failed to send letter. Please try again.' 
+    });
+  }
+});
+
+// ================================================== //
 // START SERVER                                       //
 // ================================================== //
 
