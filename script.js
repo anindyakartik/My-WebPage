@@ -669,7 +669,7 @@ if ('PerformanceObserver' in window) {
     activeBtn.style.opacity = '0.7';
     
     try {
-      const response = await fetch('/api/anonymous', {
+      const response = await fetch('https://my-personal-website-tyhs.onrender.com/api/anonymous-letter', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
