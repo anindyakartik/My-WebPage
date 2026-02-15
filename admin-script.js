@@ -7,7 +7,7 @@
   
   const API_BASE = 'https://my-personal-website-tyhs.onrender.com/api';
   let currentTab = 'projects';
-  let authToken = null;
+  let authToken = "Anindya@1734";
   
   // ================================================== //
   // AUTHENTICATION                                     //
