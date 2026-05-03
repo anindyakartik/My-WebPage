@@ -3770,3 +3770,353 @@ body {
     padding: var(--space-2xl) var(--space-lg);
   }
 }
+
+/* -------------------------------------------------- */
+/* HAMBURGER MENU                                     */
+/* -------------------------------------------------- */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(250, 250, 248, 0.1);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.3s var(--ease-smooth);
+  z-index: 1001;
+}
+
+.nav-hamburger:hover {
+  background: rgba(250, 250, 248, 0.05);
+  border-color: rgba(250, 250, 248, 0.2);
+}
+
+.hamburger-line {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: var(--paper);
+  border-radius: 2px;
+  transition: all 0.3s var(--ease-smooth);
+  transform-origin: center;
+}
+
+.nav-hamburger.active .hamburger-line:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.nav-hamburger.active .hamburger-line:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.nav-hamburger.active .hamburger-line:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+@media (max-width: 768px) {
+  .nav-hamburger {
+    display: flex;
+  }
+  
+  .sound-toggle {
+    display: none;
+  }
+  
+  .nav-menu {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2xl);
+    background: rgba(10, 10, 11, 0.97);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.95);
+    transition: all 0.4s var(--ease-dramatic);
+    z-index: 999;
+  }
+  
+  .nav-menu.mobile-open {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+  }
+  
+  .nav-menu .nav-item {
+    font-size: var(--text-2xl);
+    font-family: var(--font-display);
+    color: var(--whisper);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.4s var(--ease-smooth);
+  }
+  
+  .nav-menu.mobile-open .nav-item {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  .nav-menu.mobile-open .nav-item:nth-child(1) { transition-delay: 0.1s; }
+  .nav-menu.mobile-open .nav-item:nth-child(2) { transition-delay: 0.15s; }
+  .nav-menu.mobile-open .nav-item:nth-child(3) { transition-delay: 0.2s; }
+  .nav-menu.mobile-open .nav-item:nth-child(4) { transition-delay: 0.25s; }
+  .nav-menu.mobile-open .nav-item:nth-child(5) { transition-delay: 0.3s; }
+  .nav-menu.mobile-open .nav-item:nth-child(6) { transition-delay: 0.35s; }
+  
+  .nav-menu .nav-item:hover {
+    color: var(--fire);
+  }
+  
+  .nav-menu .nav-item-current {
+    color: var(--fire);
+  }
+  
+  body.menu-open {
+    overflow: hidden;
+  }
+}
+
+/* -------------------------------------------------- */
+/* PROJECT CARD FULL (Work Page)                      */
+/* -------------------------------------------------- */
+.project-card-full {
+  background: linear-gradient(135deg, rgba(250,250,248,0.05) 0%, rgba(250,250,248,0.02) 100%);
+  border: 1px solid rgba(250, 250, 248, 0.1);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.4s var(--ease-smooth);
+}
+
+.project-card-full:hover {
+  transform: translateY(-8px);
+  border-color: rgba(250, 250, 248, 0.2);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4), 0 0 48px rgba(239, 68, 68, 0.08);
+}
+
+.project-card-full .project-image {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  position: relative;
+}
+
+.project-card-full .project-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.03) 100%);
+  color: var(--fog);
+}
+
+.project-card-full .placeholder-icon {
+  opacity: 0.4;
+  transition: opacity 0.3s;
+}
+
+.project-card-full:hover .placeholder-icon {
+  opacity: 0.6;
+}
+
+.project-card-full .project-content {
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.project-card-full .project-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.project-card-full .project-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-md);
+  border-top: 1px solid rgba(250, 250, 248, 0.08);
+  margin-top: auto;
+}
+
+.project-stats-mini {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.project-stats-mini .stat {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--fog);
+}
+
+.project-link {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(250, 250, 248, 0.05);
+  border: 1px solid rgba(250, 250, 248, 0.1);
+  border-radius: 8px;
+  color: var(--whisper);
+  text-decoration: none;
+  transition: all 0.3s var(--ease-smooth);
+}
+
+.project-link:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: var(--fire);
+  transform: translateY(-2px);
+}
+
+.tech-badge {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  padding: 4px var(--space-sm);
+  background: rgba(250, 250, 248, 0.05);
+  border: 1px solid rgba(250, 250, 248, 0.1);
+  border-radius: 4px;
+  color: var(--whisper);
+}
+
+.project-card-full .project-tech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.status-in-progress {
+  background: rgba(245, 158, 11, 0.1) !important;
+  color: var(--gold) !important;
+  border: 1px solid rgba(245, 158, 11, 0.2) !important;
+}
+
+.status-completed {
+  background: rgba(16, 185, 129, 0.1) !important;
+  color: var(--forest) !important;
+  border: 1px solid rgba(16, 185, 129, 0.2) !important;
+}
+
+.status-planned {
+  background: rgba(59, 130, 246, 0.1) !important;
+  color: var(--ocean) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+}
+
+/* -------------------------------------------------- */
+/* POEM CARD FULL (Musings Page)                      */
+/* -------------------------------------------------- */
+.poem-card-full {
+  background: linear-gradient(135deg, rgba(250,250,248,0.05) 0%, rgba(250,250,248,0.02) 100%);
+  border: 1px solid rgba(250, 250, 248, 0.1);
+  border-radius: 16px;
+  padding: var(--space-xl);
+  transition: all 0.4s var(--ease-smooth);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.poem-card-full:hover {
+  transform: translateY(-8px);
+  border-color: rgba(250, 250, 248, 0.2);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4), 0 0 48px rgba(239, 68, 68, 0.08);
+}
+
+.poem-card-full .poem-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.poem-card-full .poem-mood {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: capitalize;
+  color: var(--fog);
+}
+
+.mood-emoji {
+  font-size: var(--text-lg);
+}
+
+.poem-card-full .poem-content {
+  flex: 1;
+}
+
+.poem-card-full .poem-content pre {
+  font-family: var(--font-display);
+  font-size: var(--text-base);
+  font-style: italic;
+  line-height: 1.8;
+  color: var(--whisper);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+}
+
+.poem-card-full .poem-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.poem-card-full .poem-tags .poem-tag {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  padding: 4px var(--space-sm);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 4px;
+  color: var(--fire);
+}
+
+.poem-card-full .poem-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--space-md);
+  border-top: 1px solid rgba(250, 250, 248, 0.08);
+  margin-top: auto;
+}
+
+.poem-card-full .poem-meta time {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--fog);
+}
+
+.poem-card-full .poem-stats {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.poem-card-full .poem-stats .stat {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--fog);
+}

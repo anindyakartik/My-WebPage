@@ -1,58 +1,124 @@
 /* ============================================================
-   MUSINGS PAGE - Dynamic Poem Loading
+   MUSINGS PAGE — Poetry & Thoughts
+   Self-contained with embedded data
    ============================================================ */
 
 (function() {
   'use strict';
-  
-  const API_BASE = 'https://my-personal-website-tyhs.onrender.com/api';
+
+  const STATIC_POEMS = [
+    {
+      _id: '1',
+      title: 'Entropy & The Machine',
+      content: 'Code rots like fruit left in the sun—\neach function call a little less elegant,\neach variable name a whisper of intention\nnow fading into legacy.\n\nWe build monuments to impermanence,\ncathedrals of logic that outlive their makers\nbut not their purpose.\n\nSomewhere between the semicolons,\na poem hides—waiting for the compiler\nto mistake beauty for syntax.',
+      mood: 'contemplative',
+      tags: ['code', 'time', 'philosophy'],
+      publishedAt: '2024-10-02',
+      featured: true,
+      stats: { views: 340, likes: 52 }
+    },
+    {
+      _id: '2',
+      title: 'Blue Light Morning',
+      content: 'On waking before the sun,\nwhen the world is still compiling\nand dreams linger in terminal windows—\n\nI reach for the warmth of coffee,\nthe cold glow of a screen,\nand wonder which one wakes me\nand which one keeps me sleeping.\n\nThe cursor blinks.\nThe world waits.\nI type the first line of the day.',
+      mood: 'contemplative',
+      tags: ['morning', 'routine', 'code'],
+      publishedAt: '2024-09-14',
+      stats: { views: 280, likes: 41 }
+    },
+    {
+      _id: '3',
+      title: 'Digital Gardens',
+      content: 'Why I chose to build a garden\ninstead of a blog—\non tending to ideas\nand letting them grow wild.\n\nA blog is a timeline.\nA garden is a topology.\nOne demands chronology;\nthe other, only connection.\n\nI plant seeds in markdown,\nwater them with hyperlinks,\nand watch them bloom into\nsomething I never planned.',
+      mood: 'joyful',
+      tags: ['writing', 'web', 'creativity'],
+      publishedAt: '2024-08-28',
+      stats: { views: 520, likes: 78 }
+    },
+    {
+      _id: '4',
+      title: 'Midnight Refactor',
+      content: 'At 2 AM the code speaks differently—\nfunction names become confessions,\ncomments turn to love letters\naddressed to the future self\nwho will read them and wonder.\n\nI delete more than I write.\nEvery removed line is a liberation,\nevery simplified function\na small act of kindness\nfor someone I haven\'t met.',
+      mood: 'melancholic',
+      tags: ['code', 'night', 'reflection'],
+      publishedAt: '2024-08-10',
+      stats: { views: 190, likes: 33 }
+    },
+    {
+      _id: '5',
+      title: 'To The Compiler',
+      content: 'Dear compiler,\nI know I ask too much of you—\nto understand my half-formed thoughts,\nmy naming conventions born\nfrom exhaustion and caffeine.\n\nYou are more patient than any reader,\nmore honest than any critic.\nWhen you say "error on line 47,"\nyou mean "I believe in you,\nbut not this version of you."',
+      mood: 'joyful',
+      tags: ['code', 'humor', 'letter'],
+      publishedAt: '2024-07-22',
+      stats: { views: 410, likes: 89 }
+    },
+    {
+      _id: '6',
+      title: 'The Weight of Tabs',
+      content: 'Forty-seven tabs open—\neach one a promise I made\nto my curiosity\nand couldn\'t keep.\n\nArticles on quantum computing,\na recipe for dal makhani,\nthree Stack Overflow answers\nto a question I forgot.\n\nI close them one by one\nlike doors in a house\nI\'m not sure I live in anymore.',
+      mood: 'melancholic',
+      tags: ['technology', 'overwhelm', 'modern-life'],
+      publishedAt: '2024-07-05',
+      stats: { views: 360, likes: 67 }
+    },
+    {
+      _id: '7',
+      title: 'First Deploy',
+      content: 'The button says "Deploy"\nbut it means something else—\nit means: release your work\ninto the wild, imperfect\nand trembling.\n\nEvery first deploy\nis a small act of courage,\na declaration that says\n"this is good enough\nto exist in the world."\n\nAnd the world, mostly,\ndoesn\'t notice.\nBut you do. And that\'s enough.',
+      mood: 'contemplative',
+      tags: ['code', 'courage', 'shipping'],
+      publishedAt: '2024-06-18',
+      stats: { views: 290, likes: 55 }
+    },
+    {
+      _id: '8',
+      title: 'Ode to Sunset',
+      content: 'The sky writes poetry\nin colors I can\'t name—\nsomewhere between hexadecimal\nand heartbreak.\n\n#FF6B35 fading into #1A1A2E,\na gradient no CSS can capture,\nno screen can reproduce.\n\nI close my laptop\nand watch the real render engine\ndo what it does best:\nremind me that beauty\ndoesn\'t need a framework.',
+      mood: 'romantic',
+      tags: ['nature', 'beauty', 'perspective'],
+      publishedAt: '2024-06-01',
+      stats: { views: 440, likes: 91 }
+    }
+  ];
+
   let allPoems = [];
   let currentFilter = 'all';
-  
+
   document.addEventListener('DOMContentLoaded', () => {
-    loadPoems();
+    allPoems = STATIC_POEMS;
+    renderPoems(allPoems);
     setupFilters();
   });
-  
-  async function loadPoems() {
-    try {
-      const response = await fetch(`${API_BASE}/poems`);
-      const data = await response.json();
-      
-      if (data.success && data.data.length > 0) {
-        allPoems = data.data;
-        renderPoems(allPoems);
-      } else {
-        showEmptyState();
-      }
-    } catch (error) {
-      console.error('Failed to load poems:', error);
-      showErrorState();
-    }
-  }
-  
+
   function renderPoems(poems) {
     const grid = document.getElementById('poemsGrid');
     if (!grid) return;
-    
+
     if (poems.length === 0) {
-      showEmptyState();
+      grid.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">✍️</div>
+          <h3>No poems match this mood</h3>
+          <p>Try selecting a different filter</p>
+        </div>
+      `;
       return;
     }
-    
+
     grid.innerHTML = poems.map((poem, index) => createPoemCard(poem, index)).join('');
-    
+
     setTimeout(() => {
-      document.querySelectorAll('[data-reveal]').forEach(el => {
-        el.classList.add('revealed');
+      document.querySelectorAll('[data-reveal]:not(.revealed)').forEach((el, i) => {
+        setTimeout(() => el.classList.add('revealed'), i * 80);
       });
-    }, 100);
+    }, 50);
   }
-  
+
   function createPoemCard(poem, index) {
     const delay = (index % 3) * 100;
     const moodEmoji = getMoodEmoji(poem.mood);
-    
+
     return `
       <article class="poem-card-full" data-reveal style="animation-delay: ${delay}ms">
         <div class="poem-header">
@@ -66,14 +132,12 @@
         <h3 class="poem-title">${poem.title}</h3>
         
         <div class="poem-content">
-          ${formatPoemContent(poem.content)}
+          <pre>${poem.content}</pre>
         </div>
         
         ${poem.tags && poem.tags.length > 0 ? `
           <div class="poem-tags">
-            ${poem.tags.slice(0, 3).map(tag => `
-              <span class="poem-tag">#${tag}</span>
-            `).join('')}
+            ${poem.tags.map(tag => `<span class="poem-tag">#${tag}</span>`).join('')}
           </div>
         ` : ''}
         
@@ -107,17 +171,7 @@
       </article>
     `;
   }
-  
-  function formatPoemContent(content) {
-    // Show first 6 lines or 300 characters
-    const lines = content.split('\n').slice(0, 6);
-    const preview = lines.join('\n');
-    
-    return preview.length < content.length ? 
-      `<pre>${preview}...</pre>` : 
-      `<pre>${preview}</pre>`;
-  }
-  
+
   function getMoodEmoji(mood) {
     const moods = {
       'contemplative': '🤔',
@@ -129,53 +183,27 @@
     };
     return moods[mood] || '📝';
   }
-  
+
   function setupFilters() {
     const filterTabs = document.querySelectorAll('.filter-tab');
-    
+
     filterTabs.forEach(tab => {
       tab.addEventListener('click', () => {
         const filter = tab.dataset.filter;
-        
         filterTabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        
         currentFilter = filter;
         filterPoems(filter);
       });
     });
   }
-  
+
   function filterPoems(filter) {
     let filtered = allPoems;
-    
     if (filter !== 'all') {
       filtered = allPoems.filter(p => p.mood === filter);
     }
-    
     renderPoems(filtered);
   }
-  
-  function showEmptyState() {
-    const grid = document.getElementById('poemsGrid');
-    grid.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">✍️</div>
-        <h3>No poems yet</h3>
-        <p>The muse is gathering inspiration...</p>
-      </div>
-    `;
-  }
-  
-  function showErrorState() {
-    const grid = document.getElementById('poemsGrid');
-    grid.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">⚠️</div>
-        <h3>Failed to load poems</h3>
-        <p>Please try refreshing the page</p>
-      </div>
-    `;
-  }
-  
+
 })();

@@ -663,6 +663,7 @@ app.delete('/api/admin/blog/:id', authMiddleware, async (req, res) => {
 
 // Email transporter setup
 const createTransporter = () => {
+  console.log("cat1")
   return nodemailer.createTransporter({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: process.env.SMTP_PORT || 587,
@@ -675,6 +676,7 @@ const createTransporter = () => {
       rejectUnauthorized: false
     }
   });
+  //console.log("cat2")
 };
 
 // Contact form submission

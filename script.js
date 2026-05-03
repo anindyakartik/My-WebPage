@@ -465,6 +465,40 @@ window.addEventListener('load', () => {
 });
 
 // ================================================== //
+// MOBILE HAMBURGER MENU                              //
+// ================================================== //
+(function() {
+  const hamburger = document.getElementById('navHamburger');
+  const navMenu = document.querySelector('.nav-menu');
+  
+  if (hamburger && navMenu) {
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      navMenu.classList.toggle('mobile-open');
+      document.body.classList.toggle('menu-open');
+    });
+    
+    // Close menu when a nav link is clicked
+    navMenu.querySelectorAll('.nav-item').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('mobile-open');
+        document.body.classList.remove('menu-open');
+      });
+    });
+    
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('mobile-open');
+        document.body.classList.remove('menu-open');
+      }
+    });
+  }
+})();
+
+// ================================================== //
 // PERFORMANCE MONITORING                             //
 // ================================================== //
 if ('PerformanceObserver' in window) {
@@ -630,11 +664,12 @@ if ('PerformanceObserver' in window) {
     });
   }
 
-  // Send letter to backend
+  // Send letter (client-side — opens email client)
   async function sendLetterToBackend() {
     const message = anonymousMessage.value.trim();
-    const expectReplyChecked = expectReply.checked;
-    const replyEmailValue = document.getElementById('replyEmail').value.trim();
+    const expectReplyChecked = expectReply ? expectReply.checked : false;
+    const replyEmailEl = document.getElementById('replyEmail');
+    const replyEmailValue = replyEmailEl ? replyEmailEl.value.trim() : '';
     
     // Validate
     if (!message) {
@@ -651,17 +686,11 @@ if ('PerformanceObserver' in window) {
       return;
     }
     
-    // Prepare data
-    const formData = {
-      message: message,
-      expectReply: expectReplyChecked,
-      replyEmail: expectReplyChecked ? replyEmailValue : null
-    };
-    
     // Show loading state
     const sendBtn = document.getElementById('sendAnonymous');
     const confirmBtn = document.getElementById('confirmSend');
-    const activeBtn = letterPreview.style.display === 'none' ? sendBtn : confirmBtn;
+    const activeBtn = (letterPreview && letterPreview.style.display === 'none') ? sendBtn : confirmBtn;
+    if (!activeBtn) return;
     
     const originalText = activeBtn.querySelector('span:not(.btn-icon)').textContent;
     activeBtn.disabled = true;
@@ -669,33 +698,26 @@ if ('PerformanceObserver' in window) {
     activeBtn.style.opacity = '0.7';
     
     try {
-      const response = await fetch('https://my-personal-website-tyhs.onrender.com/api/anonymous-letter', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
+      // Client-side: open mailto as fallback
+      const mailtoBody = encodeURIComponent(
+        `Anonymous Message:\n\n${message}${expectReplyChecked ? '\n\nReply to: ' + replyEmailValue : ''}`
+      );
+      window.location.href = `mailto:anindyakartik@gmail.com?subject=${encodeURIComponent('Anonymous Letter')}&body=${mailtoBody}`;
       
-      const data = await response.json();
-      
-      if (data.success) {
-        // Success - trigger animation
-        sendLetterAnimation();
-        if (typeof showNotification === 'function') {
-          showNotification(data.message, 'success');
-        }
-      } else {
-        throw new Error(data.message || 'Failed to send letter');
+      // Success — trigger animation
+      sendLetterAnimation();
+      if (typeof showNotification === 'function') {
+        showNotification('Opening your email client...', 'success');
       }
     } catch (error) {
       console.error('Anonymous letter error:', error);
       activeBtn.disabled = false;
-      activeBtn.querySelector('span:not(.btn-icon)').textContent = originalText;
+      const spanEl = activeBtn.querySelector('span:not(.btn-icon)');
+      if (spanEl) spanEl.textContent = originalText;
       activeBtn.style.opacity = '1';
       
       if (typeof showNotification === 'function') {
-        showNotification(error.message || 'Failed to send letter. Please try again.', 'error');
+        showNotification('Failed to send letter. Please try again.', 'error');
       }
     }
   }
