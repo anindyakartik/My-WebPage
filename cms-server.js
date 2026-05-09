@@ -786,16 +786,18 @@ app.post('/api/anonymous-letter', contactLimiter, async (req, res) => {
 // ================================================== //
 
 app.listen(PORT, () => {
+  const baseUrl = process.env.NODE_ENV === 'production'
+    ? (process.env.RENDER_EXTERNAL_URL || `https://anindya-kartik.onrender.com`)
+    : `http://localhost:${PORT}`;
   console.log(`
 ╔════════════════════════════════════════════════════╗
 ║                                                    ║
 ║   🚀 CMS Server Running Successfully!              ║
 ║                                                    ║
 ║   📍 Port: ${PORT}                                    ║
-║   🌐 URL: http://localhost:${PORT}                   ║
+║   🌐 URL: ${baseUrl}
 ║   🗄️  Database: MongoDB                            ║
-║                                                    ║
-║   Admin Panel: http://localhost:${PORT}/admin.html ║
+║   📋 Admin: ${baseUrl}/admin.html
 ║                                                    ║
 ╚════════════════════════════════════════════════════╝
   `);

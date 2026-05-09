@@ -6,7 +6,7 @@
   'use strict';
   
   // API base: same-origin when served by the backend, Render URL when served from Vercel
-  const RENDER_API = 'https://my-personal-website-tyhs.onrender.com';
+  const RENDER_API = 'https://anindya-kartik.onrender.com';
   const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
   const isServedByBackend = window.location.port === '3000' || window.location.port === '10000';
   

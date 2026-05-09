@@ -7,7 +7,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://my-personal-website-tyhs.onrender.com/api/:path*"
+      "destination": "https://anindya-kartik.onrender.com/api/:path*"
     }
   ],
   "headers": [
