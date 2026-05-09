@@ -661,51 +661,93 @@ app.delete('/api/admin/blog/:id', authMiddleware, async (req, res) => {
 // CONTACT FORM & ANONYMOUS LETTER ROUTES             //
 // ================================================== //
 
-// Email transporter setup
+// Resend (HTTP-based — works on Render free tier)
+const { Resend } = require('resend');
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+
+// SMTP fallback (for local dev or if Resend isn't configured)
 const createTransporter = () => {
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
-  
-  if (!user || !pass) {
-    console.error('❌ SMTP credentials missing: SMTP_USER=' + (user ? 'set' : 'MISSING') + ', SMTP_PASS=' + (pass ? 'set' : 'MISSING'));
-    return null;
-  }
+  if (!user || !pass) return null;
   
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT) || 587,
-    secure: false,
+    port: 465,
+    secure: true,
     auth: { user, pass },
-    tls: { rejectUnauthorized: false }
+    tls: { rejectUnauthorized: false },
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000
   });
 };
 
-// Health check endpoint — tests SMTP connection
+// Unified email sender — tries Resend first, then SMTP
+async function sendEmail({ from, to, replyTo, subject, html }) {
+  // Try Resend first (HTTP-based, always works on cloud)
+  if (resend) {
+    const result = await resend.emails.send({
+      from: from || 'Anindya Kartik <onboarding@resend.dev>',
+      to: Array.isArray(to) ? to : [to],
+      reply_to: replyTo || undefined,
+      subject,
+      html
+    });
+    
+    if (result.error) throw new Error(result.error.message);
+    console.log('✅ Email sent via Resend');
+    return result;
+  }
+  
+  // Fallback to SMTP
+  const transporter = createTransporter();
+  if (!transporter) {
+    throw new Error('No email provider configured. Set RESEND_API_KEY or SMTP credentials.');
+  }
+  
+  await transporter.verify();
+  const result = await transporter.sendMail({
+    from: from || process.env.SMTP_USER,
+    to,
+    replyTo: replyTo || undefined,
+    subject,
+    html
+  });
+  console.log('✅ Email sent via SMTP');
+  return result;
+}
+
+// Health check endpoint
 app.get('/api/health', async (req, res) => {
   const status = {
     server: 'running',
     mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-    smtp: 'unknown',
+    email: 'unknown',
+    provider: resend ? 'Resend (HTTP)' : 'SMTP',
     env: {
-      SMTP_USER: process.env.SMTP_USER ? 'set (' + process.env.SMTP_USER + ')' : 'MISSING',
-      SMTP_PASS: process.env.SMTP_PASS ? 'set (' + process.env.SMTP_PASS.length + ' chars)' : 'MISSING',
-      SMTP_HOST: process.env.SMTP_HOST || 'not set (using default smtp.gmail.com)',
-      SMTP_PORT: process.env.SMTP_PORT || 'not set (using default 587)',
+      RESEND_API_KEY: process.env.RESEND_API_KEY ? 'set' : 'MISSING',
+      SMTP_USER: process.env.SMTP_USER ? 'set' : 'MISSING',
+      SMTP_PASS: process.env.SMTP_PASS ? 'set' : 'MISSING',
       RECIPIENT_EMAIL: process.env.RECIPIENT_EMAIL || 'MISSING',
       ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || 'MISSING'
     }
   };
   
   try {
-    const transporter = createTransporter();
-    if (transporter) {
-      await transporter.verify();
-      status.smtp = 'verified — ready to send';
+    if (resend) {
+      status.email = 'Resend configured — ready to send';
     } else {
-      status.smtp = 'FAILED — credentials missing';
+      const transporter = createTransporter();
+      if (transporter) {
+        await transporter.verify();
+        status.email = 'SMTP verified — ready to send';
+      } else {
+        status.email = 'NO email provider — set RESEND_API_KEY or SMTP credentials';
+      }
     }
   } catch (err) {
-    status.smtp = 'FAILED — ' + err.message;
+    status.email = 'FAILED — ' + err.message;
   }
   
   res.json(status);
@@ -723,23 +765,13 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
       });
     }
     
-    const transporter = createTransporter();
-    if (!transporter) {
-      console.error('Contact form: SMTP not configured');
-      return res.status(500).json({ 
-        success: false, 
-        message: 'Email service is not configured. Please contact directly.' 
-      });
-    }
+    const recipientEmail = process.env.RECIPIENT_EMAIL || process.env.ADMIN_EMAIL;
     
-    // Verify SMTP connection first
-    await transporter.verify();
-    
-    // Email to you
-    await transporter.sendMail({
-      from: `"${name}" <${process.env.SMTP_USER}>`,
+    // Send notification email
+    await sendEmail({
+      from: resend ? 'Anindya Kartik <onboarding@resend.dev>' : `"${name}" <${process.env.SMTP_USER}>`,
+      to: recipientEmail,
       replyTo: email,
-      to: process.env.RECIPIENT_EMAIL || process.env.ADMIN_EMAIL,
       subject: subject || `New message from ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -755,9 +787,9 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
       `
     });
     
-    // Auto-reply to sender (non-blocking — don't fail if this fails)
-    transporter.sendMail({
-      from: `"Anindya Kartik" <${process.env.SMTP_USER}>`,
+    // Auto-reply (non-blocking)
+    sendEmail({
+      from: resend ? 'Anindya Kartik <onboarding@resend.dev>' : `"Anindya Kartik" <${process.env.SMTP_USER}>`,
       to: email,
       subject: 'Thanks for reaching out!',
       html: `
@@ -771,10 +803,7 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
     }).catch(err => console.error('Auto-reply failed:', err.message));
     
     console.log('✅ Contact email sent from', email);
-    res.json({ 
-      success: true, 
-      message: 'Message sent successfully!' 
-    });
+    res.json({ success: true, message: 'Message sent successfully!' });
     
   } catch (error) {
     console.error('Contact form error:', error.message);
@@ -797,19 +826,11 @@ app.post('/api/anonymous-letter', contactLimiter, async (req, res) => {
       });
     }
     
-    const transporter = createTransporter();
-    if (!transporter) {
-      return res.status(500).json({ 
-        success: false, 
-        message: 'Email service is not configured.' 
-      });
-    }
+    const recipientEmail = process.env.RECIPIENT_EMAIL || process.env.ADMIN_EMAIL;
     
-    await transporter.verify();
-    
-    await transporter.sendMail({
-      from: `"Anonymous" <${process.env.SMTP_USER}>`,
-      to: process.env.RECIPIENT_EMAIL || process.env.ADMIN_EMAIL,
+    await sendEmail({
+      from: resend ? 'Anonymous <onboarding@resend.dev>' : `"Anonymous" <${process.env.SMTP_USER}>`,
+      to: recipientEmail,
       subject: '📨 New Anonymous Letter',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -823,10 +844,7 @@ app.post('/api/anonymous-letter', contactLimiter, async (req, res) => {
     });
     
     console.log('✅ Anonymous letter sent');
-    res.json({ 
-      success: true, 
-      message: 'Anonymous letter sent successfully!' 
-    });
+    res.json({ success: true, message: 'Anonymous letter sent successfully!' });
     
   } catch (error) {
     console.error('Anonymous letter error:', error.message);
