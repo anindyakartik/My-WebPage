@@ -829,12 +829,12 @@ app.post('/api/anonymous-letter', contactLimiter, async (req, res) => {
     const recipientEmail = process.env.RECIPIENT_EMAIL || process.env.ADMIN_EMAIL;
     
     await sendEmail({
-      from: resend ? 'Anonymous <onboarding@resend.dev>' : `"Anonymous" <${process.env.SMTP_USER}>`,
+      from: resend ? 'onboarding@resend.dev' : `"Anonymous" <${process.env.SMTP_USER}>`,
       to: recipientEmail,
-      subject: '📨 New Anonymous Letter',
+      subject: 'New Anonymous Letter Received',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #ef4444;">📨 New Anonymous Letter</h2>
+          <h2 style="color: #ef4444;">New Anonymous Letter</h2>
           <div style="background: #f9fafb; padding: 20px; border-radius: 8px;">
             <p style="background: white; padding: 15px; border-left: 4px solid #ef4444; white-space: pre-wrap;">${message}</p>
             ${expectReply && replyEmail ? `<p><strong>Reply to:</strong> ${replyEmail}</p>` : '<p><em>No reply requested</em></p>'}
