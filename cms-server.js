@@ -663,45 +663,91 @@ app.delete('/api/admin/blog/:id', authMiddleware, async (req, res) => {
 
 // Email transporter setup
 const createTransporter = () => {
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+  
+  if (!user || !pass) {
+    console.error('❌ SMTP credentials missing: SMTP_USER=' + (user ? 'set' : 'MISSING') + ', SMTP_PASS=' + (pass ? 'set' : 'MISSING'));
+    return null;
+  }
+  
   return nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
     port: parseInt(process.env.SMTP_PORT) || 587,
     secure: false,
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-    tls: {
-      rejectUnauthorized: false
-    }
+    auth: { user, pass },
+    tls: { rejectUnauthorized: false }
   });
 };
+
+// Health check endpoint — tests SMTP connection
+app.get('/api/health', async (req, res) => {
+  const status = {
+    server: 'running',
+    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    smtp: 'unknown',
+    env: {
+      SMTP_USER: process.env.SMTP_USER ? 'set (' + process.env.SMTP_USER + ')' : 'MISSING',
+      SMTP_PASS: process.env.SMTP_PASS ? 'set (' + process.env.SMTP_PASS.length + ' chars)' : 'MISSING',
+      SMTP_HOST: process.env.SMTP_HOST || 'not set (using default smtp.gmail.com)',
+      SMTP_PORT: process.env.SMTP_PORT || 'not set (using default 587)',
+      RECIPIENT_EMAIL: process.env.RECIPIENT_EMAIL || 'MISSING',
+      ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS || 'MISSING'
+    }
+  };
+  
+  try {
+    const transporter = createTransporter();
+    if (transporter) {
+      await transporter.verify();
+      status.smtp = 'verified — ready to send';
+    } else {
+      status.smtp = 'FAILED — credentials missing';
+    }
+  } catch (err) {
+    status.smtp = 'FAILED — ' + err.message;
+  }
+  
+  res.json(status);
+});
 
 // Contact form submission
 app.post('/api/contact', contactLimiter, async (req, res) => {
   try {
-    const { name, email, message } = req.body;
+    const { name, email, subject, message } = req.body;
     
     if (!name || !email || !message) {
       return res.status(400).json({ 
         success: false, 
-        message: 'All fields are required' 
+        message: 'Name, email, and message are required' 
       });
     }
     
     const transporter = createTransporter();
+    if (!transporter) {
+      console.error('Contact form: SMTP not configured');
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Email service is not configured. Please contact directly.' 
+      });
+    }
+    
+    // Verify SMTP connection first
+    await transporter.verify();
     
     // Email to you
     await transporter.sendMail({
-      from: process.env.SMTP_USER || process.env.EMAIL_USER,
+      from: `"${name}" <${process.env.SMTP_USER}>`,
+      replyTo: email,
       to: process.env.RECIPIENT_EMAIL || process.env.ADMIN_EMAIL,
-      subject: `New Contact Form Message from ${name}`,
+      subject: subject || `New message from ${name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #ef4444;">New Contact Form Submission</h2>
           <div style="background: #f9fafb; padding: 20px; border-radius: 8px;">
             <p><strong>Name:</strong> ${name}</p>
             <p><strong>Email:</strong> ${email}</p>
+            ${subject ? `<p><strong>Subject:</strong> ${subject}</p>` : ''}
             <p><strong>Message:</strong></p>
             <p style="background: white; padding: 15px; border-left: 4px solid #ef4444;">${message}</p>
           </div>
@@ -709,9 +755,9 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
       `
     });
     
-    // Auto-reply to sender
-    await transporter.sendMail({
-      from: process.env.SMTP_USER || process.env.EMAIL_USER,
+    // Auto-reply to sender (non-blocking — don't fail if this fails)
+    transporter.sendMail({
+      from: `"Anindya Kartik" <${process.env.SMTP_USER}>`,
       to: email,
       subject: 'Thanks for reaching out!',
       html: `
@@ -719,21 +765,22 @@ app.post('/api/contact', contactLimiter, async (req, res) => {
           <h2 style="color: #ef4444;">Thanks for your message!</h2>
           <p>Hi ${name},</p>
           <p>I've received your message and will get back to you soon.</p>
-          <p style="color: #6b7280; font-size: 14px;">This is an automated response.</p>
+          <p style="color: #6b7280; font-size: 14px;">— Anindya Kartik</p>
         </div>
       `
-    });
+    }).catch(err => console.error('Auto-reply failed:', err.message));
     
+    console.log('✅ Contact email sent from', email);
     res.json({ 
       success: true, 
       message: 'Message sent successfully!' 
     });
     
   } catch (error) {
-    console.error('Contact form error:', error);
+    console.error('Contact form error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to send message. Please try again.' 
+      message: 'Failed to send message: ' + error.message 
     });
   }
 });
@@ -751,32 +798,41 @@ app.post('/api/anonymous-letter', contactLimiter, async (req, res) => {
     }
     
     const transporter = createTransporter();
+    if (!transporter) {
+      return res.status(500).json({ 
+        success: false, 
+        message: 'Email service is not configured.' 
+      });
+    }
+    
+    await transporter.verify();
     
     await transporter.sendMail({
-      from: process.env.SMTP_USER || process.env.EMAIL_USER,
+      from: `"Anonymous" <${process.env.SMTP_USER}>`,
       to: process.env.RECIPIENT_EMAIL || process.env.ADMIN_EMAIL,
       subject: '📨 New Anonymous Letter',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #ef4444;">📨 New Anonymous Letter</h2>
           <div style="background: #f9fafb; padding: 20px; border-radius: 8px;">
-            <p style="background: white; padding: 15px; border-left: 4px solid #ef4444;">${message}</p>
+            <p style="background: white; padding: 15px; border-left: 4px solid #ef4444; white-space: pre-wrap;">${message}</p>
             ${expectReply && replyEmail ? `<p><strong>Reply to:</strong> ${replyEmail}</p>` : '<p><em>No reply requested</em></p>'}
           </div>
         </div>
       `
     });
     
+    console.log('✅ Anonymous letter sent');
     res.json({ 
       success: true, 
       message: 'Anonymous letter sent successfully!' 
     });
     
   } catch (error) {
-    console.error('Anonymous letter error:', error);
+    console.error('Anonymous letter error:', error.message);
     res.status(500).json({ 
       success: false, 
-      message: 'Failed to send letter. Please try again.' 
+      message: 'Failed to send letter: ' + error.message 
     });
   }
 });
