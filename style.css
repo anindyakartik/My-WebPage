@@ -4120,3 +4120,388 @@ body {
   font-size: var(--text-xs);
   color: var(--fog);
 }
+
+/* -------------------------------------------------- */
+/* BADGE DOT (replaces emoji icons)                   */
+/* -------------------------------------------------- */
+.badge-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--fire);
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 8px var(--fire-glow);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* -------------------------------------------------- */
+/* LOADING / EMPTY STATES                             */
+/* -------------------------------------------------- */
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-3xl) var(--space-lg);
+  color: var(--fog);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid rgba(250, 250, 248, 0.1);
+  border-top-color: var(--fire);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.bookshelf-dynamic {
+  min-height: 120px;
+}
+
+.bookshelf-dynamic .shelf-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  justify-content: center;
+  padding: var(--space-xl) 0;
+  flex-wrap: wrap;
+}
+
+/* -------------------------------------------------- */
+/* COMPREHENSIVE MOBILE RESPONSIVE                    */
+/* -------------------------------------------------- */
+
+/* Hamburger always visible on small screens */
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  z-index: 1001;
+}
+
+.hamburger-line {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--paper);
+  border-radius: 2px;
+  transition: all 0.3s var(--ease-smooth);
+}
+
+/* Tablet: 1024px */
+@media (max-width: 1024px) {
+  .hero-epic {
+    padding: var(--space-4xl) var(--space-md) var(--space-3xl);
+  }
+
+  .hero-title {
+    font-size: clamp(2.5rem, 5vw + 1rem, 4rem);
+  }
+
+  .project-hero {
+    grid-template-columns: 1fr !important;
+  }
+
+  .project-visual {
+    display: none;
+  }
+
+  .poetry-section,
+  .work-section,
+  .shelf-section,
+  .now-section,
+  .contact-section {
+    padding-left: var(--space-md);
+    padding-right: var(--space-md);
+  }
+}
+
+/* Mobile: 768px */
+@media (max-width: 768px) {
+
+  /* Nav: show hamburger, hide menu */
+  .nav-float {
+    padding: var(--space-xs) var(--space-md);
+    gap: var(--space-md);
+    width: calc(100% - 2rem);
+    max-width: 100%;
+  }
+
+  .nav-hamburger {
+    display: flex;
+  }
+
+  .nav-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background: rgba(10, 10, 11, 0.97);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xl);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s var(--ease-smooth);
+    z-index: 999;
+  }
+
+  .nav-menu.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .nav-menu .nav-item {
+    font-size: var(--text-2xl);
+    font-family: var(--font-display);
+  }
+
+  .sound-toggle {
+    display: none;
+  }
+
+  /* Hamburger X animation */
+  .nav-hamburger.active .hamburger-line:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+  }
+  .nav-hamburger.active .hamburger-line:nth-child(2) {
+    opacity: 0;
+  }
+  .nav-hamburger.active .hamburger-line:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+  }
+
+  /* Hero */
+  .hero-epic {
+    padding: 8rem var(--space-md) var(--space-2xl);
+    min-height: auto;
+  }
+
+  .hero-time {
+    display: none;
+  }
+
+  .hero-title {
+    font-size: clamp(2rem, 8vw, 3.5rem);
+  }
+
+  .hero-cta {
+    flex-direction: column;
+  }
+
+  .cta-primary,
+  .cta-secondary {
+    width: 100%;
+    justify-content: center;
+    padding: var(--space-md);
+  }
+
+  .hero-scroll-prompt {
+    display: none;
+  }
+
+  /* Sections */
+  .poetry-section,
+  .work-section,
+  .shelf-section,
+  .now-section,
+  .contact-section {
+    padding: var(--space-3xl) var(--space-md);
+  }
+
+  .section-marker {
+    margin-bottom: var(--space-xl);
+  }
+
+  .section-title {
+    font-size: var(--text-2xl);
+  }
+
+  /* Poetry grid */
+  .poetry-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+
+  .poem-card.featured {
+    grid-column: 1;
+  }
+
+  /* Project grid */
+  .project-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--space-md);
+  }
+
+  .projects-masonry {
+    columns: 1 !important;
+  }
+
+  /* Books */
+  .bookshelf .shelf-row,
+  .bookshelf-dynamic .shelf-row {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .book {
+    --book-width: 36px !important;
+  }
+
+  .shelf-stats {
+    flex-direction: column;
+    gap: var(--space-md);
+    align-items: center;
+  }
+
+  /* Now grid */
+  .now-grid {
+    grid-template-columns: 1fr !important;
+    gap: var(--space-md);
+  }
+
+  /* Contact */
+  .contact-container {
+    padding: var(--space-xl) var(--space-md) !important;
+  }
+
+  .contact-title {
+    font-size: var(--text-2xl);
+  }
+
+  .contact-methods {
+    flex-direction: column;
+  }
+
+  .contact-btn {
+    width: 100%;
+  }
+
+  /* Footer */
+  .footer-content {
+    padding: var(--space-xl) var(--space-md);
+  }
+
+  .footer-top {
+    flex-direction: column;
+    gap: var(--space-md);
+    align-items: flex-start;
+  }
+
+  .footer-nav {
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: var(--space-md);
+    align-items: flex-start;
+  }
+
+  /* Page hero */
+  .page-hero {
+    padding-top: 7rem !important;
+    padding-left: var(--space-md);
+    padding-right: var(--space-md);
+  }
+
+  .page-title {
+    font-size: clamp(1.8rem, 6vw, 2.8rem);
+  }
+
+  .filter-tabs {
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .filter-tab {
+    font-size: var(--text-xs);
+    padding: var(--space-xs) var(--space-sm);
+  }
+
+  /* Books grid page */
+  .books-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Poems grid page */
+  .poems-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Anonymous letter form */
+  .anon-section {
+    padding: var(--space-xl) var(--space-md);
+  }
+}
+
+/* Small Mobile: 480px */
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: clamp(1.6rem, 7vw, 2.5rem);
+  }
+
+  .hero-status {
+    font-size: 0.7rem;
+  }
+
+  .nav-float {
+    top: var(--space-sm);
+    padding: 6px var(--space-sm);
+  }
+
+  .poetry-section,
+  .work-section,
+  .shelf-section,
+  .now-section,
+  .contact-section {
+    padding: var(--space-2xl) var(--space-sm);
+  }
+
+  .poem-card {
+    padding: var(--space-md);
+  }
+
+  .project-card {
+    padding: var(--space-md);
+  }
+
+  .now-card {
+    padding: var(--space-md);
+  }
+
+  .contact-social {
+    justify-content: center;
+  }
+}
+
+/* Tiny screens: 360px */
+@media (max-width: 360px) {
+  .hero-title {
+    font-size: 1.5rem;
+  }
+
+  .brand-text {
+    display: none;
+  }
+}
