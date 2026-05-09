@@ -34,10 +34,7 @@ app.set('trust proxy', 1);
 // MONGODB CONNECTION                                 //
 // ================================================== //
 
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
   console.log('✅ MongoDB connected successfully');
   initializeAdmin();
@@ -72,7 +69,10 @@ async function initializeAdmin() {
 // MIDDLEWARE                                         //
 // ================================================== //
 
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false
+}));
 app.use(cors({
   origin: function(origin, callback) {
     const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(o => o.trim()) || ['*'];
@@ -663,20 +663,18 @@ app.delete('/api/admin/blog/:id', authMiddleware, async (req, res) => {
 
 // Email transporter setup
 const createTransporter = () => {
-  console.log("cat1")
-  return nodemailer.createTransporter({
+  return nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: process.env.SMTP_PORT || 587,
+    port: parseInt(process.env.SMTP_PORT) || 587,
     secure: false,
     auth: {
-      user: process.env.SMTP_USER || process.env.EMAIL_USER,
-      pass: process.env.SMTP_PASS || process.env.EMAIL_PASS,
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
     },
     tls: {
       rejectUnauthorized: false
     }
   });
-  //console.log("cat2")
 };
 
 // Contact form submission

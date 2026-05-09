@@ -7,9 +7,13 @@
 (function() {
   'use strict';
   
-  // API is optional — page works perfectly without it
-  const API_BASE = 'https://my-personal-website-tyhs.onrender.com/api';
-  const API_TIMEOUT = 4000; // 4 second timeout
+  // Use relative path (Vercel rewrites proxy to Render backend)
+  // Falls back to direct Render URL for local dev
+  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const API_BASE = isLocal
+    ? `${window.location.protocol}//${window.location.host}/api`
+    : '/api';
+  const API_TIMEOUT = 4000;
   
   // Only attempt API calls; never destroy existing content on failure
   document.addEventListener('DOMContentLoaded', () => {

@@ -33,3 +33,9 @@ build/
 # Deployment artifacts
 .vercel-deploy
 .vercel-trigger
+
+# Uploads (user-generated content)
+uploads/
+
+# Gemini
+.gemini/

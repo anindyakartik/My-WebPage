@@ -5,9 +5,17 @@
 (function() {
   'use strict';
   
-  const API_BASE = 'https://my-personal-website-tyhs.onrender.com/api';
+  // API base: same-origin when served by the backend, Render URL when served from Vercel
+  const RENDER_API = 'https://my-personal-website-tyhs.onrender.com';
+  const isLocalDev = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const isServedByBackend = window.location.port === '3000' || window.location.port === '10000';
+  
+  const API_BASE = (isLocalDev || isServedByBackend)
+    ? `${window.location.protocol}//${window.location.host}/api`
+    : `${RENDER_API}/api`;
+  
   let currentTab = 'projects';
-  let authToken = "Anindya@1734";
+  let authToken = null;
   
   // ================================================== //
   // AUTHENTICATION                                     //
@@ -18,7 +26,6 @@
   const adminDashboard = document.getElementById('adminDashboard');
   const logoutBtn = document.getElementById('logoutBtn');
   
-  // Check if already logged in
   checkAuth();
   
   async function checkAuth() {
@@ -42,9 +49,15 @@
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       
+      const username = document.getElementById('adminUsername').value.trim();
       const password = document.getElementById('adminPassword').value;
       const submitBtn = loginForm.querySelector('button[type="submit"]');
       const originalText = submitBtn.querySelector('span').textContent;
+      
+      if (!username || !password) {
+        showNotification('Please enter both username and password', 'error');
+        return;
+      }
       
       submitBtn.disabled = true;
       submitBtn.querySelector('span').textContent = 'Unlocking...';
@@ -54,10 +67,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({
-            username: 'admin',
-            password: password
-          })
+          body: JSON.stringify({ username, password })
         });
         
         const data = await response.json();
@@ -122,17 +132,12 @@
   
   function switchTab(tabName) {
     currentTab = tabName;
-    
-    // Update nav tabs
     navTabs.forEach(tab => {
       tab.classList.toggle('active', tab.dataset.tab === tabName);
     });
-    
-    // Update content tabs
     contentTabs.forEach(tab => {
       tab.classList.toggle('active', tab.id === `${tabName}Tab`);
     });
-    
     loadContent(tabName);
   }
   
@@ -188,7 +193,6 @@
     
     listElement.innerHTML = items.map(item => createContentCard(type, item)).join('');
     
-    // Add event listeners
     listElement.querySelectorAll('.btn-edit').forEach(btn => {
       btn.addEventListener('click', () => editContent(type, btn.dataset.id));
     });
@@ -229,7 +233,7 @@
           </div>
         </div>
         <div class="item-content">
-          ${item.description || item.excerpt || item.content?.substring(0, 200) + '...'}
+          ${item.description || item.excerpt || (item.content ? item.content.substring(0, 200) + '...' : '')}
         </div>
         <div class="item-stats">
           <div class="stat-item">
@@ -276,7 +280,6 @@
   function openModal(type, item = null) {
     currentContentType = type;
     currentEditId = item?._id || null;
-    
     modalTitle.textContent = item ? `Edit ${type.slice(0, -1)}` : `Add ${type.slice(0, -1)}`;
     formFields.innerHTML = getFormFields(type, item);
     modal.classList.add('active');
@@ -291,7 +294,6 @@
   
   closeModal?.addEventListener('click', closeModalFn);
   cancelBtn?.addEventListener('click', closeModalFn);
-  
   modal?.addEventListener('click', (e) => {
     if (e.target === modal) closeModalFn();
   });
@@ -328,10 +330,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label>
-            <input type="checkbox" name="published" ${item?.published !== false ? 'checked' : ''}>
-            Published
-          </label>
+          <label><input type="checkbox" name="published" ${item?.published !== false ? 'checked' : ''}> Published</label>
         </div>
       `,
       poems: `
@@ -359,10 +358,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label>
-            <input type="checkbox" name="published" ${item?.published !== false ? 'checked' : ''}>
-            Published
-          </label>
+          <label><input type="checkbox" name="published" ${item?.published !== false ? 'checked' : ''}> Published</label>
         </div>
       `,
       books: `
@@ -399,10 +395,7 @@
           <textarea name="notes" rows="3">${item?.notes || ''}</textarea>
         </div>
         <div class="form-group">
-          <label>
-            <input type="checkbox" name="published" ${item?.published !== false ? 'checked' : ''}>
-            Published
-          </label>
+          <label><input type="checkbox" name="published" ${item?.published !== false ? 'checked' : ''}> Published</label>
         </div>
       `,
       blog: `
@@ -415,7 +408,7 @@
           <textarea name="content" rows="15" required>${item?.content || ''}</textarea>
         </div>
         <div class="form-group">
-          <label>Excerpt (optional - auto-generated if empty)</label>
+          <label>Excerpt</label>
           <textarea name="excerpt" rows="3">${item?.excerpt || ''}</textarea>
         </div>
         <div class="form-group">
@@ -434,20 +427,13 @@
           <input type="text" name="tags" value="${item?.tags?.join(', ') || ''}">
         </div>
         <div class="form-group">
-          <label>
-            <input type="checkbox" name="featured" ${item?.featured ? 'checked' : ''}>
-            Featured Post
-          </label>
+          <label><input type="checkbox" name="featured" ${item?.featured ? 'checked' : ''}> Featured</label>
         </div>
         <div class="form-group">
-          <label>
-            <input type="checkbox" name="published" ${item?.published !== false ? 'checked' : ''}>
-            Published
-          </label>
+          <label><input type="checkbox" name="published" ${item?.published !== false ? 'checked' : ''}> Published</label>
         </div>
       `
     };
-    
     return fields[type] || '';
   }
   
@@ -457,8 +443,6 @@
     
     const formData = new FormData(contentForm);
     const data = Object.fromEntries(formData);
-    
-    // Convert checkbox
     data.published = formData.has('published');
     
     const submitBtn = contentForm.querySelector('button[type="submit"]');
@@ -501,18 +485,12 @@
   async function editContent(type, id) {
     try {
       const response = await fetch(`${API_BASE}/admin/${type}`, {
-        headers: {
-          'Authorization': `Bearer ${authToken}`
-        },
+        headers: { 'Authorization': `Bearer ${authToken}` },
         credentials: 'include'
       });
-      
       const data = await response.json();
       const item = data.data.find(i => i._id === id);
-      
-      if (item) {
-        openModal(type, item);
-      }
+      if (item) openModal(type, item);
     } catch (error) {
       showNotification('Failed to load content', 'error');
     }
@@ -525,14 +503,10 @@
     try {
       const response = await fetch(`${API_BASE}/admin/${type}/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${authToken}`
-        },
+        headers: { 'Authorization': `Bearer ${authToken}` },
         credentials: 'include'
       });
-      
       const data = await response.json();
-      
       if (data.success) {
         showNotification(data.message, 'success');
         loadContent(type);
@@ -544,10 +518,7 @@
     }
   }
   
-  // ================================================== //
-  // REFRESH BUTTON                                     //
-  // ================================================== //
-  
+  // Refresh
   document.getElementById('refreshBtn')?.addEventListener('click', () => {
     loadContent(currentTab);
     showNotification('Content refreshed', 'success');
@@ -563,20 +534,15 @@
     
     const notification = document.createElement('div');
     notification.className = `notification-toast notification-${type}`;
-    
     const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
-    
     notification.innerHTML = `
       <div class="notification-content">
         <span class="notification-icon">${icon}</span>
         <span class="notification-message">${message}</span>
       </div>
     `;
-    
     document.body.appendChild(notification);
-    
     setTimeout(() => notification.classList.add('show'), 10);
-    
     setTimeout(() => {
       notification.classList.remove('show');
       setTimeout(() => notification.remove(), 300);
