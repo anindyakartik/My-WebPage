@@ -67,22 +67,63 @@
       
       <div class="now-meta-info" data-reveal>
         <div class="pulse-dot"></div>
-        <span class="now-updated">Last updated: May 2026</span>
+        <span class="now-updated" id="nowUpdated">Last updated: May 2026</span>
       </div>
     </section>
 
     <section class="now-page-section">
       <div class="now-container" data-reveal>
         <div class="now-grid">
-          <p class="empty-state-text" style="color: rgba(255,255,255,0.5); text-align: center; padding: 4rem 2rem; grid-column: 1/-1; font-family: 'Fraunces', serif; font-style: italic;">
-            Content coming soon — check back later.
-          </p>
+
+          <!-- Cards loaded dynamically from /api/now by pages/now.js -->
+          <div id="nowCardsContainer" style="display: contents;"></div>
+
+          <!-- Breakfast Challenge — full width, interactive, always shown -->
+          <div class="now-card now-card--challenge">
+            <div class="now-card__eyebrow">
+              <span class="now-card__tag now-card__tag--gold">30-Day Challenge</span>
+              <span class="now-card__dot"></span>
+              <span class="now-card__label">Started July 1, 2026</span>
+            </div>
+
+            <h3 class="now-card__title">Eating breakfast. Every single day.</h3>
+
+            <p class="now-card__body">
+              I know. Not exactly "building a distributed consensus algorithm." But I've been skipping breakfast for years — wake up, open the laptop, forget to eat, feel terrible by noon, wonder why. This summer I decided to fix the most boring bug in my system first.
+            </p>
+
+            <p class="now-card__body">
+              30 consecutive days. A real meal before 10am. That's it. Simple, hard, honest.
+            </p>
+
+            <!-- Streak counter -->
+            <div class="challenge-stats">
+              <div class="challenge-stat">
+                <span class="challenge-stat__number" id="streakCount">0</span>
+                <span class="challenge-stat__label">current streak</span>
+              </div>
+              <div class="challenge-stat">
+                <span class="challenge-stat__number" id="doneCount">0</span>
+                <span class="challenge-stat__label">days done</span>
+              </div>
+              <div class="challenge-stat">
+                <span class="challenge-stat__number" id="remainCount">30</span>
+                <span class="challenge-stat__label">days left</span>
+              </div>
+            </div>
+
+            <!-- 30-day grid -->
+            <div class="challenge-grid" id="breakfastGrid" aria-label="30-day breakfast tracker"></div>
+
+            <p class="challenge-hint">Click a day to mark it done — progress is saved in your browser.</p>
+          </div>
+
         </div>
 
         <div class="now-footer" data-reveal>
           <p class="now-note">
             This is a <a href="https://nownownow.com/about" target="_blank" rel="noopener">now page</a>,
-            inspired by Derek Sivers. A living document of my current focus.
+            inspired by Derek Sivers. Updated July 2026, from New Delhi.
           </p>
         </div>
       </div>
@@ -109,5 +150,105 @@
   </footer>
 
   <script src="script.js"></script>
+  <script src="pages/now.js"></script>
+
+  <script>
+    /* ── Breakfast Challenge Tracker ── */
+    (function () {
+      const TOTAL = 30;
+      const STORAGE_KEY = 'ak_breakfast_challenge_v1';
+      const grid = document.getElementById('breakfastGrid');
+      const streakEl = document.getElementById('streakCount');
+      const doneEl = document.getElementById('doneCount');
+      const remainEl = document.getElementById('remainCount');
+
+      // Load state: array of booleans, length 30
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length === TOTAL) return parsed;
+          }
+        } catch (_) {}
+        return Array(TOTAL).fill(false);
+      }
+
+      function saveState(state) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      // Compute current streak (longest consecutive tail of trues)
+      function computeStreak(state) {
+        let s = 0;
+        for (let i = TOTAL - 1; i >= 0; i--) {
+          if (state[i]) s++; else break;
+        }
+        return s;
+      }
+
+      function updateStats(state) {
+        const done = state.filter(Boolean).length;
+        streakEl.textContent = computeStreak(state);
+        doneEl.textContent = done;
+        remainEl.textContent = Math.max(0, TOTAL - done);
+      }
+
+      function celebrate(cell) {
+        // tiny particle burst on the cell
+        const rect = cell.getBoundingClientRect();
+        for (let i = 0; i < 8; i++) {
+          const p = document.createElement('span');
+          p.className = 'challenge-particle';
+          const angle = (i / 8) * 360;
+          const dist = 30 + Math.random() * 20;
+          p.style.setProperty('--angle', angle + 'deg');
+          p.style.setProperty('--dist', dist + 'px');
+          p.style.left = (rect.left + rect.width / 2) + 'px';
+          p.style.top = (rect.top + rect.height / 2) + 'px';
+          document.body.appendChild(p);
+          setTimeout(() => p.remove(), 700);
+        }
+      }
+
+      function buildGrid() {
+        const state = loadState();
+        grid.innerHTML = '';
+
+        for (let i = 0; i < TOTAL; i++) {
+          const cell = document.createElement('button');
+          cell.className = 'challenge-cell' + (state[i] ? ' challenge-cell--done' : '');
+          cell.setAttribute('aria-label', `Day ${i + 1}`);
+          cell.setAttribute('aria-pressed', state[i] ? 'true' : 'false');
+
+          cell.innerHTML = `
+            <span class="challenge-cell__day">Day</span>
+            <span class="challenge-cell__num">${i + 1}</span>
+            <span class="challenge-cell__check">✓</span>
+          `;
+
+          cell.addEventListener('click', () => {
+            const s = loadState();
+            s[i] = !s[i];
+            saveState(s);
+            cell.classList.toggle('challenge-cell--done', s[i]);
+            cell.setAttribute('aria-pressed', s[i] ? 'true' : 'false');
+            if (s[i]) celebrate(cell);
+            updateStats(s);
+
+            // animate the number out/in
+            cell.classList.add('challenge-cell--pop');
+            setTimeout(() => cell.classList.remove('challenge-cell--pop'), 300);
+          });
+
+          grid.appendChild(cell);
+        }
+
+        updateStats(state);
+      }
+
+      buildGrid();
+    })();
+  </script>
 </body>
 </html>

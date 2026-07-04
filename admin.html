@@ -112,6 +112,19 @@
         </svg>
         <span>Blog</span>
       </button>
+      <button class="nav-tab" data-tab="now">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2"/>
+          <path d="M10 6v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Now</span>
+      </button>
+      <button class="nav-tab" data-tab="guestbook">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M17 8h1a1 1 0 011 1v8a1 1 0 01-1 1H3a1 1 0 01-1-1V9a1 1 0 011-1h1M8 7V3a1 1 0 011-1h2a1 1 0 011 1v4M7 7h6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Guestbook</span>
+      </button>
     </nav>
 
     <!-- Content Area -->
@@ -171,6 +184,31 @@
           </button>
         </div>
         <div id="blogList" class="content-list"></div>
+      </div>
+
+      <!-- Now Tab -->
+      <div id="nowTab" class="content-tab">
+        <div class="tab-header">
+          <h2>Manage Now Page</h2>
+          <button class="btn-primary" id="addNowBtn">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M10 5v10M5 10h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>Add Card</span>
+          </button>
+        </div>
+        <div id="nowList" class="content-list"></div>
+      </div>
+
+      <!-- Guestbook Tab -->
+      <div id="guestbookTab" class="content-tab">
+        <div class="tab-header">
+          <h2>Guestbook Moderation</h2>
+          <div class="tab-header-meta" id="gbPendingBadge" style="display:none;">
+            <span class="badge badge-pending" id="gbPendingCount">0 pending</span>
+          </div>
+        </div>
+        <div id="guestbookList" class="content-list guestbook-admin-list"></div>
       </div>
 
     </main>

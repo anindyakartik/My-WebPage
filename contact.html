@@ -292,6 +292,65 @@
         </div>
       </div>
     </section>
+
+    <!-- ══ GUESTBOOK ══ -->
+    <section class="guestbook-section" id="guestbook" data-reveal>
+      <div class="guestbook-inner">
+
+        <div class="guestbook-header">
+          <div class="section-marker">
+            <span class="marker-line"></span>
+            <span class="marker-text">06 — Guestbook</span>
+          </div>
+          <h2 class="guestbook-title">Sign the guestbook.</h2>
+          <p class="guestbook-subtitle">
+            You passed through. Leave a trace. It can be anything — a word, a question, a recommendation, a tiny poem. No account, no email required.
+          </p>
+        </div>
+
+        <!-- Sign Form -->
+        <div class="guestbook-form-wrap">
+          <form class="guestbook-form" id="guestbookForm">
+            <div class="guestbook-form__row">
+              <div class="form-group">
+                <label for="gb-name">Name <span class="required-star">*</span></label>
+                <input type="text" id="gb-name" name="name" placeholder="What do people call you?" maxlength="60" required autocomplete="name">
+              </div>
+              <div class="form-group">
+                <label for="gb-location">Where from? <span class="optional">(optional)</span></label>
+                <input type="text" id="gb-location" name="location" placeholder="City, country, the internet…" maxlength="60" autocomplete="off">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="gb-message">Message <span class="required-star">*</span></label>
+              <textarea id="gb-message" name="message" rows="3" placeholder="Leave something real." maxlength="280" required></textarea>
+              <div class="guestbook-char-counter">
+                <span id="gbCharCount">0</span> / 280
+              </div>
+            </div>
+            <button type="submit" class="guestbook-submit" id="gbSubmitBtn">
+              <span class="guestbook-submit__text">Sign the guestbook</span>
+              <span class="guestbook-submit__icon">✦</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Entries Feed -->
+        <div class="guestbook-feed" id="guestbookFeed">
+          <div class="guestbook-feed__header">
+            <span class="guestbook-feed__count" id="gbEntryCount">—</span>
+            <span class="guestbook-feed__label">entries</span>
+          </div>
+          <div class="guestbook-entries" id="guestbookEntries">
+            <div class="guestbook-loading">
+              <div class="spinner"></div>
+              <p>Loading entries…</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
   </main>
 
   <footer class="footer">
@@ -590,6 +649,125 @@
       }, 5000);
     }
     
+
+    // ================================================== //
+    // GUESTBOOK                                           //
+    // ================================================== //
+    const gbForm = document.getElementById('guestbookForm');
+    const gbEntries = document.getElementById('guestbookEntries');
+    const gbEntryCount = document.getElementById('gbEntryCount');
+    const gbCharCount = document.getElementById('gbCharCount');
+    const gbMessage = document.getElementById('gb-message');
+
+    if (gbMessage && gbCharCount) {
+      gbMessage.addEventListener('input', () => {
+        const len = gbMessage.value.length;
+        gbCharCount.textContent = len;
+        gbCharCount.style.color = len > 250 ? 'var(--fire)' : '';
+      });
+    }
+
+    function timeAgo(dateStr) {
+      const diff = Date.now() - new Date(dateStr).getTime();
+      const mins = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+      if (mins < 1) return 'just now';
+      if (mins < 60) return `${mins}m ago`;
+      if (hours < 24) return `${hours}h ago`;
+      if (days < 30) return `${days}d ago`;
+      return new Date(dateStr).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+    }
+
+    function escapeHtml(str) {
+      return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function renderEntry(entry, prepend = false) {
+      const card = document.createElement('div');
+      card.className = 'gb-entry';
+      card.dataset.id = entry._id;
+      card.innerHTML = `
+        <div class="gb-entry__meta">
+          <span class="gb-entry__name">${escapeHtml(entry.name)}</span>
+          ${entry.location ? `<span class="gb-entry__location">· ${escapeHtml(entry.location)}</span>` : ''}
+          <span class="gb-entry__time">${timeAgo(entry.createdAt)}</span>
+        </div>
+        <p class="gb-entry__message">${escapeHtml(entry.message)}</p>
+      `;
+      if (prepend && gbEntries.firstChild) {
+        gbEntries.insertBefore(card, gbEntries.firstChild);
+      } else {
+        gbEntries.appendChild(card);
+      }
+    }
+
+    async function loadGuestbook() {
+      try {
+        const res = await fetch(`${API_BASE}/guestbook`);
+        const data = await res.json();
+        gbEntries.innerHTML = '';
+        if (data.success && data.data.length > 0) {
+          gbEntryCount.textContent = data.data.length;
+          data.data.forEach(e => renderEntry(e));
+        } else {
+          gbEntryCount.textContent = '0';
+          gbEntries.innerHTML = '<p class="gb-empty">No entries yet. Be the first to sign.</p>';
+        }
+      } catch (_) {
+        gbEntries.innerHTML = '<p class="gb-empty">Couldn\'t load entries right now. Try refreshing.</p>';
+        gbEntryCount.textContent = '—';
+      }
+    }
+
+    if (gbForm) {
+      gbForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('gbSubmitBtn');
+        const name = document.getElementById('gb-name').value.trim();
+        const location = document.getElementById('gb-location').value.trim();
+        const message = gbMessage.value.trim();
+        if (!name || !message) return;
+
+        btn.disabled = true;
+        btn.querySelector('.guestbook-submit__text').textContent = 'Signing…';
+
+        try {
+          const res = await fetch(`${API_BASE}/guestbook`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, location, message })
+          });
+          const data = await res.json();
+          if (data.success) {
+            const empty = gbEntries.querySelector('.gb-empty');
+            if (empty) empty.remove();
+            renderEntry(data.data, true);
+            const count = parseInt(gbEntryCount.textContent) || 0;
+            gbEntryCount.textContent = count + 1;
+            gbForm.reset();
+            gbCharCount.textContent = '0';
+            btn.querySelector('.guestbook-submit__text').textContent = '✓ Signed!';
+            btn.classList.add('signed');
+            showNotification('Thanks for signing the guestbook!', 'success');
+            setTimeout(() => {
+              btn.disabled = false;
+              btn.querySelector('.guestbook-submit__text').textContent = 'Sign the guestbook';
+              btn.classList.remove('signed');
+            }, 4000);
+          } else {
+            throw new Error(data.message);
+          }
+        } catch (err) {
+          showNotification(err.message || 'Could not sign right now.', 'error');
+          btn.disabled = false;
+          btn.querySelector('.guestbook-submit__text').textContent = 'Sign the guestbook';
+        }
+      });
+    }
+
+    loadGuestbook();
+
     // Notification styles
     const notificationStyles = document.createElement('style');
     notificationStyles.textContent = `

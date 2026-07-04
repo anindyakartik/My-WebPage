@@ -177,29 +177,148 @@
     }
   }
   
+  const typeLabels = {
+    projects: 'project',
+    poems: 'poem',
+    books: 'book',
+    blog: 'post',
+    now: 'now card',
+    guestbook: 'entry'
+  };
+  function singularLabel(type) {
+    return typeLabels[type] || type.slice(0, -1);
+  }
+
   function renderContent(type, items) {
+    if (type === 'guestbook') {
+      renderGuestbook(items);
+      return;
+    }
+
     const listElement = document.getElementById(`${type}List`);
-    
+
     if (items.length === 0) {
       listElement.innerHTML = `
         <div class="empty-state">
           <div class="empty-state-icon">📝</div>
           <h3>No ${type} yet</h3>
-          <p>Click the "Add" button to create your first ${type.slice(0, -1)}</p>
+          <p>Click the "Add" button to create your first ${singularLabel(type)}</p>
         </div>
       `;
       return;
     }
-    
+
     listElement.innerHTML = items.map(item => createContentCard(type, item)).join('');
-    
+
     listElement.querySelectorAll('.btn-edit').forEach(btn => {
       btn.addEventListener('click', () => editContent(type, btn.dataset.id));
     });
-    
+
     listElement.querySelectorAll('.btn-delete').forEach(btn => {
       btn.addEventListener('click', () => deleteContent(type, btn.dataset.id));
     });
+  }
+
+  // ================================================== //
+  // GUESTBOOK MODERATION                               //
+  // ================================================== //
+
+  function escapeHtml(str) {
+    return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function renderGuestbook(entries) {
+    const listElement = document.getElementById('guestbookList');
+    const pendingBadge = document.getElementById('gbPendingBadge');
+    const pendingCountEl = document.getElementById('gbPendingCount');
+
+    const pendingCount = entries.filter(e => !e.approved).length;
+    if (pendingBadge) {
+      pendingBadge.style.display = pendingCount > 0 ? 'inline-flex' : 'none';
+    }
+    if (pendingCountEl) {
+      pendingCountEl.textContent = `${pendingCount} pending`;
+    }
+
+    if (entries.length === 0) {
+      listElement.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📖</div>
+          <h3>No entries yet</h3>
+          <p>Guestbook signatures from visitors will show up here.</p>
+        </div>
+      `;
+      return;
+    }
+
+    listElement.innerHTML = entries.map(entry => `
+      <div class="content-item guestbook-entry-admin">
+        <div class="item-header">
+          <div>
+            <h3 class="item-title">${escapeHtml(entry.name)}${entry.location ? ` <span class="gb-admin-location">· ${escapeHtml(entry.location)}</span>` : ''}</h3>
+            <div class="item-meta">
+              <span>${entry.approved ? '<span style="color: var(--forest)">✓ Approved</span>' : '<span class="badge badge-pending">Pending</span>'}</span>
+              <span>${new Date(entry.createdAt).toLocaleString()}</span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <button class="btn-secondary btn-toggle-approve" data-id="${entry._id}">
+              ${entry.approved ? 'Unapprove' : 'Approve'}
+            </button>
+            <button class="btn-secondary btn-delete-guestbook" data-id="${entry._id}" style="color: var(--fire)">
+              Delete
+            </button>
+          </div>
+        </div>
+        <div class="item-content">${escapeHtml(entry.message)}</div>
+      </div>
+    `).join('');
+
+    listElement.querySelectorAll('.btn-toggle-approve').forEach(btn => {
+      btn.addEventListener('click', () => toggleGuestbookApproval(btn.dataset.id));
+    });
+    listElement.querySelectorAll('.btn-delete-guestbook').forEach(btn => {
+      btn.addEventListener('click', () => deleteGuestbookEntry(btn.dataset.id));
+    });
+  }
+
+  async function toggleGuestbookApproval(id) {
+    try {
+      const response = await fetch(`${API_BASE}/admin/guestbook/${id}`, {
+        method: 'PATCH',
+        headers: { 'Authorization': `Bearer ${authToken}` },
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (data.success) {
+        showNotification('Entry updated', 'success');
+        loadContent('guestbook');
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      showNotification(error.message, 'error');
+    }
+  }
+
+  async function deleteGuestbookEntry(id) {
+    if (!confirm('Delete this guestbook entry?')) return;
+    try {
+      const response = await fetch(`${API_BASE}/admin/guestbook/${id}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${authToken}` },
+        credentials: 'include'
+      });
+      const data = await response.json();
+      if (data.success) {
+        showNotification(data.message, 'success');
+        loadContent('guestbook');
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      showNotification(error.message, 'error');
+    }
   }
   
   function createContentCard(type, item) {
@@ -233,8 +352,9 @@
           </div>
         </div>
         <div class="item-content">
-          ${item.description || item.excerpt || (item.content ? item.content.substring(0, 200) + '...' : '')}
+          ${item.description || item.excerpt || (item.content ? item.content.substring(0, 200) + '...' : '') || (item.body?.[0] ? item.body[0].substring(0, 200) + '...' : '')}
         </div>
+        ${item.stats ? `
         <div class="item-stats">
           <div class="stat-item">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -250,6 +370,7 @@
             ${item.stats?.likes || 0} likes
           </div>
         </div>
+        ` : ''}
       </div>
     `;
   }
@@ -262,6 +383,7 @@
   document.getElementById('addPoemBtn')?.addEventListener('click', () => openModal('poems'));
   document.getElementById('addBookBtn')?.addEventListener('click', () => openModal('books'));
   document.getElementById('addBlogBtn')?.addEventListener('click', () => openModal('blog'));
+  document.getElementById('addNowBtn')?.addEventListener('click', () => openModal('now'));
   
   // ================================================== //
   // MODAL                                              //
@@ -280,7 +402,7 @@
   function openModal(type, item = null) {
     currentContentType = type;
     currentEditId = item?._id || null;
-    modalTitle.textContent = item ? `Edit ${type.slice(0, -1)}` : `Add ${type.slice(0, -1)}`;
+    modalTitle.textContent = item ? `Edit ${singularLabel(type)}` : `Add ${singularLabel(type)}`;
     formFields.innerHTML = getFormFields(type, item);
     modal.classList.add('active');
   }
@@ -312,6 +434,19 @@
         <div class="form-group">
           <label>Technologies (comma-separated)</label>
           <input type="text" name="technologies" value="${item?.technologies?.join(', ') || ''}">
+        </div>
+        <div class="form-group">
+          <label>Image URL</label>
+          <input type="url" name="imageUrl" value="${item?.imageUrl || ''}" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label>Category</label>
+          <select name="category">
+            <option value="web" ${item?.category === 'web' ? 'selected' : ''}>Web</option>
+            <option value="mobile" ${item?.category === 'mobile' ? 'selected' : ''}>Mobile</option>
+            <option value="design" ${item?.category === 'design' ? 'selected' : ''}>Design</option>
+            <option value="other" ${item?.category === 'other' ? 'selected' : ''}>Other</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Live URL</label>
@@ -379,6 +514,10 @@
           <input type="number" name="rating" min="1" max="5" step="0.5" value="${item?.rating || 5}" required>
         </div>
         <div class="form-group">
+          <label>Cover Image URL</label>
+          <input type="url" name="coverImage" value="${item?.coverImage || ''}" placeholder="https://...">
+        </div>
+        <div class="form-group">
           <label>Genre (comma-separated)</label>
           <input type="text" name="genre" value="${item?.genre?.join(', ') || ''}">
         </div>
@@ -412,6 +551,10 @@
           <textarea name="excerpt" rows="3">${item?.excerpt || ''}</textarea>
         </div>
         <div class="form-group">
+          <label>Cover Image URL</label>
+          <input type="url" name="coverImage" value="${item?.coverImage || ''}" placeholder="https://...">
+        </div>
+        <div class="form-group">
           <label>Category</label>
           <select name="category">
             <option value="thoughts" ${item?.category === 'thoughts' ? 'selected' : ''}>Thoughts</option>
@@ -432,6 +575,38 @@
         <div class="form-group">
           <label><input type="checkbox" name="published" ${item?.published !== false ? 'checked' : ''}> Published</label>
         </div>
+      `,
+      now: `
+        <div class="form-group">
+          <label>Title *</label>
+          <input type="text" name="title" value="${item?.title || ''}" required>
+        </div>
+        <div class="form-group">
+          <label>Tag</label>
+          <input type="text" name="tag" value="${item?.tag || 'Now'}" placeholder="e.g. Reading, Building, Thinking about">
+        </div>
+        <div class="form-group">
+          <label>Label <span style="opacity:0.6">(optional)</span></label>
+          <input type="text" name="label" value="${item?.label || ''}">
+        </div>
+        <div class="form-group">
+          <label>Body <span style="opacity:0.6">(separate paragraphs with a blank line)</span></label>
+          <textarea name="body" rows="8">${item?.body?.join('\n\n') || ''}</textarea>
+        </div>
+        <div class="form-group">
+          <label>Books <span style="opacity:0.6">(optional, one per line: Title | Author | Note)</span></label>
+          <textarea name="books" rows="4">${item?.books?.map(b => `${b.title || ''} | ${b.author || ''} | ${b.note || ''}`).join('\n') || ''}</textarea>
+        </div>
+        <div class="form-group">
+          <label>Order</label>
+          <input type="number" name="order" value="${item?.order ?? 0}">
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" name="featured" ${item?.featured ? 'checked' : ''}> Featured (full width)</label>
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" name="published" ${item?.published !== false ? 'checked' : ''}> Published</label>
+        </div>
       `
     };
     return fields[type] || '';
@@ -444,7 +619,16 @@
     const formData = new FormData(contentForm);
     const data = Object.fromEntries(formData);
     data.published = formData.has('published');
-    
+
+    if (currentContentType === 'now') {
+      data.featured = formData.has('featured');
+      data.body = (data.body || '').split(/\n\s*\n/).map(p => p.trim()).filter(Boolean);
+      data.books = (data.books || '').split('\n').map(l => l.trim()).filter(Boolean).map(line => {
+        const [title, author, note] = line.split('|').map(s => (s || '').trim());
+        return { title, author, note };
+      });
+    }
+
     const submitBtn = contentForm.querySelector('button[type="submit"]');
     submitBtn.disabled = true;
     

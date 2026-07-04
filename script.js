@@ -329,9 +329,9 @@ const ambientAudio = new Audio();
 ambientAudio.loop = true;
 ambientAudio.volume = 0.2;
 
-soundToggle.addEventListener('click', () => {
+soundToggle?.addEventListener('click', () => {
   audioPlaying = !audioPlaying;
-  
+
   if (audioPlaying) {
     // ambientAudio.play(); // Uncomment when you have an audio file
     soundToggle.style.color = '#ef4444';
@@ -339,7 +339,7 @@ soundToggle.addEventListener('click', () => {
     // ambientAudio.pause(); // Uncomment when you have an audio file
     soundToggle.style.color = '';
   }
-  
+
   // Animate sound waves
   const soundWave = soundToggle.querySelector('.sound-wave');
   if (soundWave) {

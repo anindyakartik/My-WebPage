@@ -11,10 +11,7 @@ const rateLimit = require('express-rate-limit');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
-const multer = require('multer');
 const nodemailer = require('nodemailer');
-const path = require('path');
-const fs = require('fs');
 require('dotenv').config();
 
 // Import models
@@ -23,9 +20,28 @@ const Project = require('./models/Project');
 const Poem = require('./models/Poem');
 const Book = require('./models/Book');
 const BlogPost = require('./models/BlogPost');
+const Guestbook = require('./models/Guestbook');
+const NowCard = require('./models/NowCard');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// ================================================== //
+// PRODUCTION SAFETY CHECKS                           //
+// ================================================== //
+
+if (process.env.NODE_ENV === 'production') {
+  const required = ['JWT_SECRET', 'SESSION_SECRET', 'MONGODB_URI'];
+  const missing = required.filter(key => !process.env[key]);
+  if (missing.length > 0) {
+    console.error(`❌ Missing required environment variables in production: ${missing.join(', ')}`);
+    process.exit(1);
+  }
+  if (!process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGINS.trim() === '*') {
+    console.error('❌ ALLOWED_ORIGINS must be an explicit comma-separated list in production (cannot be "*" when credentials are used).');
+    process.exit(1);
+  }
+}
 
 // Trust proxy for Render
 app.set('trust proxy', 1);
@@ -100,42 +116,6 @@ app.use(session({
 
 // Serve static files
 app.use(express.static('.'));
-app.use('/uploads', express.static('uploads'));
-
-// Create uploads directory if it doesn't exist
-if (!fs.existsSync('./uploads')) {
-  fs.mkdirSync('./uploads');
-}
-
-// ================================================== //
-// FILE UPLOAD CONFIGURATION                          //
-// ================================================== //
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-  fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|gif|webp/;
-    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
-    
-    if (extname && mimetype) {
-      return cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed!'));
-    }
-  }
-});
 
 // ================================================== //
 // AUTHENTICATION MIDDLEWARE                          //
@@ -325,12 +305,9 @@ app.get('/api/admin/projects', authMiddleware, async (req, res) => {
 });
 
 // Create project (admin)
-app.post('/api/admin/projects', authMiddleware, upload.single('image'), async (req, res) => {
+app.post('/api/admin/projects', authMiddleware, async (req, res) => {
   try {
     const projectData = { ...req.body };
-    if (req.file) {
-      projectData.imageUrl = `/uploads/${req.file.filename}`;
-    }
     if (projectData.technologies && typeof projectData.technologies === 'string') {
       projectData.technologies = projectData.technologies.split(',').map(t => t.trim());
     }
@@ -345,12 +322,9 @@ app.post('/api/admin/projects', authMiddleware, upload.single('image'), async (r
 });
 
 // Update project (admin)
-app.put('/api/admin/projects/:id', authMiddleware, upload.single('image'), async (req, res) => {
+app.put('/api/admin/projects/:id', authMiddleware, async (req, res) => {
   try {
     const projectData = { ...req.body };
-    if (req.file) {
-      projectData.imageUrl = `/uploads/${req.file.filename}`;
-    }
     if (projectData.technologies && typeof projectData.technologies === 'string') {
       projectData.technologies = projectData.technologies.split(',').map(t => t.trim());
     }
@@ -508,12 +482,9 @@ app.get('/api/admin/books', authMiddleware, async (req, res) => {
 });
 
 // Create book (admin)
-app.post('/api/admin/books', authMiddleware, upload.single('coverImage'), async (req, res) => {
+app.post('/api/admin/books', authMiddleware, async (req, res) => {
   try {
     const bookData = { ...req.body };
-    if (req.file) {
-      bookData.coverImage = `/uploads/${req.file.filename}`;
-    }
     if (bookData.genre && typeof bookData.genre === 'string') {
       bookData.genre = bookData.genre.split(',').map(t => t.trim());
     }
@@ -527,12 +498,9 @@ app.post('/api/admin/books', authMiddleware, upload.single('coverImage'), async 
 });
 
 // Update book (admin)
-app.put('/api/admin/books/:id', authMiddleware, upload.single('coverImage'), async (req, res) => {
+app.put('/api/admin/books/:id', authMiddleware, async (req, res) => {
   try {
     const bookData = { ...req.body };
-    if (req.file) {
-      bookData.coverImage = `/uploads/${req.file.filename}`;
-    }
     if (bookData.genre && typeof bookData.genre === 'string') {
       bookData.genre = bookData.genre.split(',').map(t => t.trim());
     }
@@ -602,12 +570,9 @@ app.get('/api/admin/blog', authMiddleware, async (req, res) => {
 });
 
 // Create blog post (admin)
-app.post('/api/admin/blog', authMiddleware, upload.single('coverImage'), async (req, res) => {
+app.post('/api/admin/blog', authMiddleware, async (req, res) => {
   try {
     const postData = { ...req.body };
-    if (req.file) {
-      postData.coverImage = `/uploads/${req.file.filename}`;
-    }
     if (postData.tags && typeof postData.tags === 'string') {
       postData.tags = postData.tags.split(',').map(t => t.trim());
     }
@@ -621,12 +586,9 @@ app.post('/api/admin/blog', authMiddleware, upload.single('coverImage'), async (
 });
 
 // Update blog post (admin)
-app.put('/api/admin/blog/:id', authMiddleware, upload.single('coverImage'), async (req, res) => {
+app.put('/api/admin/blog/:id', authMiddleware, async (req, res) => {
   try {
     const postData = { ...req.body };
-    if (req.file) {
-      postData.coverImage = `/uploads/${req.file.filename}`;
-    }
     if (postData.tags && typeof postData.tags === 'string') {
       postData.tags = postData.tags.split(',').map(t => t.trim());
     }
@@ -852,6 +814,181 @@ app.post('/api/anonymous-letter', contactLimiter, async (req, res) => {
       success: false, 
       message: 'Failed to send letter: ' + error.message 
     });
+  }
+});
+
+// ================================================== //
+// GUESTBOOK ROUTES                                   //
+// ================================================== //
+
+const guestbookLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3,
+  message: { success: false, message: 'You\'ve signed the guestbook recently — check back later.' }
+});
+
+// GET all approved guestbook entries (public)
+app.get('/api/guestbook', async (req, res) => {
+  try {
+    const entries = await Guestbook.find({ approved: true })
+      .sort({ createdAt: -1 })
+      .select('name message location createdAt')
+      .limit(100);
+    res.json({ success: true, data: entries });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch guestbook' });
+  }
+});
+
+// POST new guestbook entry (public)
+app.post('/api/guestbook', guestbookLimiter, async (req, res) => {
+  try {
+    const { name, message, location } = req.body;
+
+    if (!name || !message) {
+      return res.status(400).json({ success: false, message: 'Name and message are required' });
+    }
+    if (message.length > 280) {
+      return res.status(400).json({ success: false, message: 'Message cannot exceed 280 characters' });
+    }
+
+    // Basic spam check — block obvious bot strings
+    const spamPatterns = /http[s]?:\/\/|<script|\bviagra\b|\bcasino\b/i;
+    if (spamPatterns.test(message) || spamPatterns.test(name)) {
+      return res.status(400).json({ success: false, message: 'Invalid submission' });
+    }
+
+    const entry = new Guestbook({
+      name: name.substring(0, 60),
+      message: message.substring(0, 280),
+      location: (location || '').substring(0, 60),
+      ip: req.ip
+    });
+
+    await entry.save();
+
+    // Return the entry without the ip field
+    res.json({
+      success: true,
+      message: 'Thanks for signing the guestbook!',
+      data: {
+        _id: entry._id,
+        name: entry.name,
+        message: entry.message,
+        location: entry.location,
+        createdAt: entry.createdAt
+      }
+    });
+  } catch (error) {
+    console.error('Guestbook error:', error);
+    res.status(500).json({ success: false, message: 'Failed to save entry' });
+  }
+});
+
+// GET all guestbook entries incl. unapproved (admin only)
+app.get('/api/admin/guestbook', authMiddleware, async (req, res) => {
+  try {
+    const entries = await Guestbook.find().sort({ createdAt: -1 });
+    res.json({ success: true, data: entries });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch guestbook' });
+  }
+});
+
+// DELETE guestbook entry (admin only)
+app.delete('/api/admin/guestbook/:id', authMiddleware, async (req, res) => {
+  try {
+    const entry = await Guestbook.findByIdAndDelete(req.params.id);
+    if (!entry) {
+      return res.status(404).json({ success: false, message: 'Entry not found' });
+    }
+    res.json({ success: true, message: 'Entry deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to delete entry' });
+  }
+});
+
+// PATCH to toggle approval (admin only)
+app.patch('/api/admin/guestbook/:id', authMiddleware, async (req, res) => {
+  try {
+    const entry = await Guestbook.findById(req.params.id);
+    if (!entry) {
+      return res.status(404).json({ success: false, message: 'Entry not found' });
+    }
+    entry.approved = !entry.approved;
+    await entry.save();
+    res.json({ success: true, data: entry });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to update entry' });
+  }
+});
+
+// ================================================== //
+// NOW CARDS ROUTES                                   //
+// ================================================== //
+
+// Get all now cards (public)
+app.get('/api/now', async (req, res) => {
+  try {
+    const cards = await NowCard.find({ published: true })
+      .sort({ order: 1, createdAt: -1 })
+      .select('-__v');
+    res.json({ success: true, data: cards });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch now cards' });
+  }
+});
+
+// Get all now cards (admin)
+app.get('/api/admin/now', authMiddleware, async (req, res) => {
+  try {
+    const cards = await NowCard.find().sort({ order: 1, createdAt: -1 });
+    res.json({ success: true, data: cards });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch now cards' });
+  }
+});
+
+// Create now card (admin)
+app.post('/api/admin/now', authMiddleware, async (req, res) => {
+  try {
+    const cardData = { ...req.body };
+    if (cardData.order !== undefined) cardData.order = Number(cardData.order) || 0;
+
+    const card = new NowCard(cardData);
+    await card.save();
+    res.json({ success: true, message: 'Now card created successfully', data: card });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to create now card' });
+  }
+});
+
+// Update now card (admin)
+app.put('/api/admin/now/:id', authMiddleware, async (req, res) => {
+  try {
+    const cardData = { ...req.body };
+    if (cardData.order !== undefined) cardData.order = Number(cardData.order) || 0;
+
+    const card = await NowCard.findByIdAndUpdate(req.params.id, cardData, { new: true, runValidators: true });
+    if (!card) {
+      return res.status(404).json({ success: false, message: 'Now card not found' });
+    }
+    res.json({ success: true, message: 'Now card updated successfully', data: card });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to update now card' });
+  }
+});
+
+// Delete now card (admin)
+app.delete('/api/admin/now/:id', authMiddleware, async (req, res) => {
+  try {
+    const card = await NowCard.findByIdAndDelete(req.params.id);
+    if (!card) {
+      return res.status(404).json({ success: false, message: 'Now card not found' });
+    }
+    res.json({ success: true, message: 'Now card deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to delete now card' });
   }
 });
 

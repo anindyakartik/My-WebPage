@@ -561,3 +561,38 @@
   color: var(--whisper);
   margin-bottom: var(--space-xl);
 }
+
+/* ================================================== */
+/* GUESTBOOK MODERATION                               */
+/* ================================================== */
+
+.tab-header-meta {
+  display: flex;
+  align-items: center;
+}
+
+.badge {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+
+.badge-pending {
+  color: var(--fire);
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.gb-admin-location {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--fog);
+  font-weight: 400;
+}
+
+.guestbook-entry-admin .item-content {
+  white-space: pre-wrap;
+}
