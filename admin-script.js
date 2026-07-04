@@ -139,6 +139,7 @@
       tab.classList.toggle('active', tab.id === `${tabName}Tab`);
     });
     loadContent(tabName);
+    if (tabName === 'now') loadChallenge();
   }
   
   // ================================================== //
@@ -320,7 +321,96 @@
       showNotification(error.message, 'error');
     }
   }
-  
+
+  // ================================================== //
+  // BREAKFAST CHALLENGE                                //
+  // ================================================== //
+
+  let challengeDays = [];
+
+  async function loadChallenge() {
+    try {
+      const response = await fetch(`${API_BASE}/challenge`);
+      const data = await response.json();
+      const challenge = data.data || {
+        tag: '30-Day Challenge',
+        label: '',
+        title: '',
+        body: [],
+        totalDays: 30,
+        days: Array(30).fill(false)
+      };
+      renderChallengeForm(challenge);
+    } catch (error) {
+      showNotification('Failed to load challenge', 'error');
+    }
+  }
+
+  function renderChallengeForm(challenge) {
+    document.getElementById('challengeTag').value = challenge.tag || '';
+    document.getElementById('challengeLabel').value = challenge.label || '';
+    document.getElementById('challengeTitle').value = challenge.title || '';
+    document.getElementById('challengeBody').value = (challenge.body || []).join('\n\n');
+    document.getElementById('challengeTotalDays').value = challenge.totalDays || 30;
+    challengeDays = (challenge.days || []).slice(0, challenge.totalDays || 30);
+    while (challengeDays.length < (challenge.totalDays || 30)) challengeDays.push(false);
+    renderChallengeDayGrid();
+  }
+
+  function renderChallengeDayGrid() {
+    const grid = document.getElementById('challengeDayGrid');
+    grid.innerHTML = challengeDays.map((done, i) => `
+      <button type="button" class="challenge-day-cell ${done ? 'challenge-day-cell--done' : ''}" data-index="${i}">${i + 1}</button>
+    `).join('');
+
+    grid.querySelectorAll('.challenge-day-cell').forEach(cell => {
+      cell.addEventListener('click', () => {
+        const i = Number(cell.dataset.index);
+        challengeDays[i] = !challengeDays[i];
+        cell.classList.toggle('challenge-day-cell--done', challengeDays[i]);
+      });
+    });
+  }
+
+  document.getElementById('challengeTotalDays')?.addEventListener('change', (e) => {
+    const total = Math.max(1, Number(e.target.value) || 30);
+    while (challengeDays.length < total) challengeDays.push(false);
+    challengeDays = challengeDays.slice(0, total);
+    renderChallengeDayGrid();
+  });
+
+  document.getElementById('challengeForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const payload = {
+      tag: document.getElementById('challengeTag').value,
+      label: document.getElementById('challengeLabel').value,
+      title: document.getElementById('challengeTitle').value,
+      body: document.getElementById('challengeBody').value.split(/\n\s*\n/).map(p => p.trim()).filter(Boolean),
+      totalDays: Math.max(1, Number(document.getElementById('challengeTotalDays').value) || 30),
+      days: challengeDays
+    };
+
+    try {
+      const response = await fetch(`${API_BASE}/admin/challenge`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`
+        },
+        credentials: 'include',
+        body: JSON.stringify(payload)
+      });
+      const data = await response.json();
+      if (data.success) {
+        showNotification('Challenge updated', 'success');
+      } else {
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      showNotification(error.message, 'error');
+    }
+  });
+
   function createContentCard(type, item) {
     const publishedStatus = item.published ? 
       '<span style="color: var(--forest)">✓ Published</span>' : 

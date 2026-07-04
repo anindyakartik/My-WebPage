@@ -11,7 +11,10 @@
     ? `${window.location.protocol}//${window.location.host}/api`
     : '/api';
 
-  document.addEventListener('DOMContentLoaded', fetchNowCards);
+  document.addEventListener('DOMContentLoaded', () => {
+    fetchNowCards();
+    fetchChallenge();
+  });
 
   async function fetchNowCards() {
     const container = document.getElementById('nowCardsContainer');
@@ -94,6 +97,55 @@
       const formatted = new Date(latest).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
       el.textContent = `Last updated: ${formatted}`;
     }
+  }
+
+  // ================================================== //
+  // BREAKFAST CHALLENGE — read-only, admin-editable     //
+  // ================================================== //
+
+  async function fetchChallenge() {
+    const card = document.getElementById('challengeCard');
+    if (!card) return;
+
+    try {
+      const response = await fetch(`${API_BASE}/challenge`);
+      const data = await response.json();
+      if (data.success && data.data && data.data.title) {
+        renderChallenge(data.data);
+        card.style.display = '';
+      }
+    } catch (error) {
+      // Leave the card hidden if the challenge hasn't been set up yet.
+    }
+  }
+
+  function renderChallenge(challenge) {
+    document.getElementById('challengeTagEl').textContent = challenge.tag || 'Challenge';
+    document.getElementById('challengeLabelEl').textContent = challenge.label || '';
+    document.getElementById('challengeTitleEl').textContent = challenge.title;
+    document.getElementById('challengeBodyEl').innerHTML =
+      (challenge.body || []).map(p => `<p class="now-card__body">${p}</p>`).join('');
+
+    const total = challenge.totalDays || (challenge.days || []).length;
+    const days = challenge.days || [];
+    const done = days.filter(Boolean).length;
+    let streak = 0;
+    for (let i = days.length - 1; i >= 0; i--) {
+      if (days[i]) streak++; else break;
+    }
+
+    document.getElementById('streakCount').textContent = streak;
+    document.getElementById('doneCount').textContent = done;
+    document.getElementById('remainCount').textContent = Math.max(0, total - done);
+
+    const grid = document.getElementById('breakfastGrid');
+    grid.innerHTML = days.map((isDone, i) => `
+      <div class="challenge-cell ${isDone ? 'challenge-cell--done' : ''}" aria-label="Day ${i + 1}">
+        <span class="challenge-cell__day">Day</span>
+        <span class="challenge-cell__num">${i + 1}</span>
+        <span class="challenge-cell__check">✓</span>
+      </div>
+    `).join('');
   }
 
 })();

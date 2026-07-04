@@ -189,6 +189,43 @@
       <!-- Now Tab -->
       <div id="nowTab" class="content-tab">
         <div class="tab-header">
+          <h2>Breakfast Challenge</h2>
+        </div>
+        <div class="content-item challenge-editor">
+          <form id="challengeForm">
+            <div class="form-group">
+              <label>Tag</label>
+              <input type="text" name="tag" id="challengeTag">
+            </div>
+            <div class="form-group">
+              <label>Label</label>
+              <input type="text" name="label" id="challengeLabel">
+            </div>
+            <div class="form-group">
+              <label>Title</label>
+              <input type="text" name="title" id="challengeTitle">
+            </div>
+            <div class="form-group">
+              <label>Body <span style="opacity:0.6">(separate paragraphs with a blank line)</span></label>
+              <textarea name="body" id="challengeBody" rows="5"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Total Days</label>
+              <input type="number" name="totalDays" id="challengeTotalDays" min="1" max="365">
+            </div>
+            <div class="form-group">
+              <label>Days completed <span style="opacity:0.6">(click to toggle)</span></label>
+              <div class="challenge-grid" id="challengeDayGrid"></div>
+            </div>
+            <div class="modal-actions">
+              <button type="submit" class="btn-primary">
+                <span>Save Challenge</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div class="tab-header" style="margin-top: var(--space-3xl);">
           <h2>Manage Now Page</h2>
           <button class="btn-primary" id="addNowBtn">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">

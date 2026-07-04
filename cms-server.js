@@ -22,6 +22,7 @@ const Book = require('./models/Book');
 const BlogPost = require('./models/BlogPost');
 const Guestbook = require('./models/Guestbook');
 const NowCard = require('./models/NowCard');
+const Settings = require('./models/Settings');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -54,11 +55,38 @@ mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
   console.log('✅ MongoDB connected successfully');
   initializeAdmin();
+  initializeChallenge();
 })
 .catch((err) => {
   console.error('❌ MongoDB connection error:', err);
   process.exit(1);
 });
+
+// Seed the breakfast challenge with its existing real content on first boot only
+async function initializeChallenge() {
+  try {
+    const existing = await Settings.findOne({ key: 'challenge' });
+    if (existing) return;
+
+    await Settings.create({
+      key: 'challenge',
+      value: {
+        tag: '30-Day Challenge',
+        label: 'Started July 1, 2026',
+        title: 'Eating breakfast. Every single day.',
+        body: [
+          `I know. Not exactly "building a distributed consensus algorithm." But I've been skipping breakfast for years — wake up, open the laptop, forget to eat, feel terrible by noon, wonder why. This summer I decided to fix the most boring bug in my system first.`,
+          `30 consecutive days. A real meal before 10am. That's it. Simple, hard, honest.`
+        ],
+        totalDays: 30,
+        days: Array(30).fill(false)
+      }
+    });
+    console.log('✅ Seeded breakfast challenge');
+  } catch (error) {
+    console.error('Error seeding challenge:', error);
+  }
+}
 
 // Initialize admin user if doesn't exist
 async function initializeAdmin() {
@@ -989,6 +1017,40 @@ app.delete('/api/admin/now/:id', authMiddleware, async (req, res) => {
     res.json({ success: true, message: 'Now card deleted successfully' });
   } catch (error) {
     res.status(500).json({ success: false, message: 'Failed to delete now card' });
+  }
+});
+
+// ================================================== //
+// BREAKFAST CHALLENGE ROUTES                         //
+// ================================================== //
+
+// Get challenge state (public — read-only display)
+app.get('/api/challenge', async (req, res) => {
+  try {
+    const setting = await Settings.findOne({ key: 'challenge' });
+    if (!setting) {
+      return res.json({ success: true, data: null });
+    }
+    res.json({ success: true, data: setting.value });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch challenge' });
+  }
+});
+
+// Update challenge state (admin only — the only way to edit it)
+app.put('/api/admin/challenge', authMiddleware, async (req, res) => {
+  try {
+    const { tag, label, title, body, totalDays, days } = req.body;
+    const value = { tag, label, title, body, totalDays, days };
+
+    const setting = await Settings.findOneAndUpdate(
+      { key: 'challenge' },
+      { value },
+      { new: true, upsert: true, runValidators: true }
+    );
+    res.json({ success: true, message: 'Challenge updated successfully', data: setting.value });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to update challenge' });
   }
 });
 
