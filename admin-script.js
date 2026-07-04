@@ -572,6 +572,10 @@
           <input type="text" name="tags" value="${item?.tags?.join(', ') || ''}">
         </div>
         <div class="form-group">
+          <label>Image URL <span style="opacity:0.6">(optional)</span></label>
+          <input type="url" name="imageUrl" value="${item?.imageUrl || ''}" placeholder="https://...">
+        </div>
+        <div class="form-group">
           <label>Mood</label>
           <select name="mood">
             <option value="contemplative" ${item?.mood === 'contemplative' ? 'selected' : ''}>Contemplative</option>

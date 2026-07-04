@@ -4670,6 +4670,80 @@ body {
   color: var(--fog);
 }
 
+.poem-image {
+  width: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+  max-height: 320px;
+}
+
+/* ── Blog cards on Musings page ── */
+.blog-card-full {
+  background: linear-gradient(135deg, rgba(250,250,248,0.05) 0%, rgba(250,250,248,0.02) 100%);
+  border: 1px solid rgba(250, 250, 248, 0.1);
+  border-radius: 16px;
+  padding: var(--space-xl);
+  transition: all 0.4s var(--ease-smooth);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.blog-card-full:hover {
+  transform: translateY(-8px);
+  border-color: rgba(250, 250, 248, 0.2);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4), 0 0 48px rgba(239, 68, 68, 0.08);
+}
+
+.blog-card-full__cover {
+  width: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+  max-height: 320px;
+}
+
+.blog-card-full__excerpt {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.8;
+  color: var(--whisper);
+}
+
+.blog-card-full__full {
+  display: none;
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.8;
+  color: var(--whisper);
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.blog-card-full--expanded .blog-card-full__excerpt {
+  display: none;
+}
+
+.blog-card-full--expanded .blog-card-full__full {
+  display: flex;
+}
+
+.read-more-btn {
+  align-self: flex-start;
+  background: transparent;
+  border: none;
+  color: var(--fire);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  padding: 0;
+}
+
+.read-more-btn:hover {
+  text-decoration: underline;
+}
+
 /* -------------------------------------------------- */
 /* BADGE DOT (replaces emoji icons)                   */
 /* -------------------------------------------------- */
